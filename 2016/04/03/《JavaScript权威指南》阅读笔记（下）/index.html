@@ -1,0 +1,112 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> 《JavaScript权威指南》阅读笔记（下） · 易浮的小窝</title><meta name="description" content="《JavaScript权威指南》阅读笔记（下） - Hyifu"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" href="/favicon.ico"><link rel="stylesheet" href="/css/apollo.css"><link rel="search" type="application/opensearchdescription+xml" href="https://github.com/Hyifu/atom.xml" title="易浮的小窝"></head><body><div class="wrap"><header><a href="/" class="logo-link"><img src="/favicon.png" alt="logo"><h1>易浮的小窝</h1></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/archives/" target="_self" class="nav-list-link">ARCHIVE</a></li></ul></header><main class="container"><div class="post"><article class="post-block"><h1 class="post-title">《JavaScript权威指南》阅读笔记（下）</h1><div class="post-info">Apr 3, 2016</div><div class="post-content"><p>继续阅读，这里是客户端JavaScript实现的部分</p>
+<p><img src="/images/JavaScript权威指南.jpg" alt="JavaScript权威指南"></p>
+<a id="more"></a>
+<h3 id="Web浏览器中的JavaScript"><a href="#Web浏览器中的JavaScript" class="headerlink" title="Web浏览器中的JavaScript"></a>Web浏览器中的JavaScript</h3><ul>
+<li><p>Location对象的新发现</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">location == location.href <span class="comment">// true，location 对象调用了 toString() 方法</span></div><div class="line">location = <span class="string">'www.example.com'</span> <span class="comment">// 相当于给 location.href 赋值</span></div><div class="line"><span class="built_in">window</span>.location === <span class="built_in">document</span>.location <span class="comment">// true</span></div></pre></td></tr></table></figure>
+</li>
+<li><p><code>&lt;script&gt;</code> 标签如果有 <code>src</code> 属性，则 <code>&lt;script&gt;</code> 标签中的任何内容均会被忽略</p>
+</li>
+<li><code>&lt;script&gt;</code> 标签中如果包含不被浏览器识别的 <code>type</code> 属性，浏览器会尝试解析但不执行/显示，利用这个可以做成 <code>HTML模板</code> (只限内联)，如 <code>&lt;script type=&quot;yhsd-template&quot;&gt;...模板内容...&lt;/script&gt;</code>；但如果同时又指定了 <code>src</code> 属性，该标签会被忽略</li>
+</ul>
+<h3 id="window对象"><a href="#window对象" class="headerlink" title="window对象"></a>window对象</h3><ul>
+<li><code>setTimeout(func, 0)</code> 中，函数 <code>func</code> 不会立刻执行，而是等待前面事件处理程序都运行完再“立即”执行</li>
+<li>一个有趣的历史遗留问题是，当元素的 <code>id</code> （或特殊元素的 <code>name</code>）不是 <code>window</code> 对象的一个属性时，该元素会被隐式的成为全局的一个属性。实践中尽量避免使用这种方式，HTML5 标准中已废弃<figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">button</span> <span class="attr">id</span>=<span class="string">"btn"</span>&gt;</span>我会被隐式成为全局属性<span class="tag">&lt;/<span class="name">button</span>&gt;</span></div><div class="line"><span class="tag">&lt;<span class="name">button</span> <span class="attr">id</span>=<span class="string">"alert"</span>&gt;</span>我被alert方法覆盖了！！！<span class="tag">&lt;/<span class="name">button</span>&gt;</span></div><div class="line"><span class="tag">&lt;<span class="name">button</span> <span class="attr">id</span>=<span class="string">"user"</span>&gt;</span>我被自定义全局变量方法覆盖了！！！<span class="tag">&lt;/<span class="name">button</span>&gt;</span></div><div class="line"><span class="tag">&lt;<span class="name">br</span>&gt;</span></div><div class="line"><span class="tag">&lt;<span class="name">img</span> <span class="attr">class</span>=<span class="string">"foo"</span> <span class="attr">name</span>=<span class="string">"foo"</span> <span class="attr">src</span>=<span class="string">"example2.png"</span>&gt;</span></div><div class="line"><span class="tag">&lt;<span class="name">img</span> <span class="attr">class</span>=<span class="string">"foo"</span> <span class="attr">name</span>=<span class="string">"foo"</span> <span class="attr">src</span>=<span class="string">"example3.png"</span>&gt;</span></div><div class="line"><span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="javascript"></span></div><div class="line">  <span class="built_in">window</span>.btn === <span class="built_in">document</span>.getElementById(<span class="string">'btn'</span>) <span class="comment">// true</span></div><div class="line">  <span class="built_in">window</span>.alert === <span class="built_in">document</span>.getElementById(<span class="string">'alert'</span>) <span class="comment">// false，被 window.alert 方法覆盖</span></div><div class="line">  <span class="comment">//</span></div><div class="line">  <span class="keyword">var</span> user = <span class="string">'user defined'</span></div><div class="line">  <span class="built_in">window</span>.user === <span class="built_in">document</span>.getElementById(<span class="string">'user'</span>) <span class="comment">// false，被自定义全局变量覆盖了</span></div><div class="line">  <span class="comment">//</span></div><div class="line">  <span class="built_in">window</span>.foo === <span class="built_in">document</span>.getElementsByClassName(<span class="string">'foo'</span>) <span class="comment">// false 前者为 HTMLCollection 对象，后者为NodeList对象</span></div><div class="line"><span class="tag">&lt;/<span class="name">script</span>&gt;</span></div></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="脚本化文档"><a href="#脚本化文档" class="headerlink" title="脚本化文档"></a>脚本化文档</h3><ul>
+<li>HTMLCollection 和 NodeList 对象是动态的，实时反应 DOM 中的变化，因此在实际应用中可能需要保存获取时的静态副本以避免后续变动造成影响</li>
+<li>HTMLCollection 和 NodeList 对象具有细微的区别，前者是标准DOM的 Core 接口，后者为 HTML 独有并多了一个 <code>namedItem</code> 方法；HTMLCollection 是元素集合而 NodeList 是节点集合（即可以包含元素，也可以包含文本节点）</li>
+<li>标准显示的文档中，<code>getElementsByClassName()</code> 方法区分大小写（怪异模式则不区分大小写）</li>
+<li>IE8不支持 <code>getElementsByClassName()</code> 方法，但却支持 <code>querySelectorAll()</code> 方法</li>
+<li><p>通过 <code>querySelectorAll()</code> 获取的 NodeList 对象不是实时动态的，而是获取时的静止快照。<code>querySelector()</code> 只选中第一个匹配的元素。</p>
+<blockquote>
+<p>在Element调用 querySelector 方法，选择器仍然搜索整个文档，但会过滤出基于该 Element 的后代元素返回，这意味着在这种情况下相对于 <code>getElementBy*方法</code> 会消耗更多的性能</p>
+</blockquote>
+</li>
+<li><p>对于 <code>&lt;p&gt;This is a &lt;i&gt;simple&lt;/i&gt;document&lt;/p&gt;</code> 而言，<code>&lt;p&gt;</code> 标签中的内容是什么？</p>
+<ul>
+<li><code>innerHTML</code> —— <code>This is a &lt;i&gt;simple&lt;/i&gt;document</code></li>
+<li><code>outerHTML</code> —— <code>&lt;p&gt;This is a &lt;i&gt;simple&lt;/i&gt;document&lt;/p&gt;</code></li>
+<li><code>innerText</code> —— <code>This is a simple document</code></li>
+</ul>
+</li>
+<li>元素、滚动条、窗口的大小位置获取及设置的理解（结合图示）</li>
+<li><code>onsubmit</code> 事件处理程序中返回 <code>false</code> 可取消提交，该事件只能通过“提交”按钮触发，直接用JS调用 <code>submit()</code> 方法无效（<code>onreset</code> 同理）</li>
+<li>建议不用 <code>&lt;a&gt;</code> 标签模拟非链接的按钮，以更加语义化（当脚本失效时用链接代替按钮的功能是一种优雅降级，脚本失效仍可点开新页面进入下一步）</li>
+<li>单选/复选按钮中使用 <code>change</code> 事件代替 <code>click</code></li>
+<li><code>&lt;input type=&quot;file&quot;&gt;</code> 的 <code>value</code> 是只读的，防止恶意JS上传</li>
+<li>通过设置标签的 <code>contenteditable</code> 属性创建可编辑区域是富文本编辑器的常用手段，其中浏览器支持多种 API，但这些 API 的兼容可能需要考虑，建议使用富文本编辑器插件。</li>
+</ul>
+<h3 id="脚本化CSS"><a href="#脚本化CSS" class="headerlink" title="脚本化CSS"></a>脚本化CSS</h3><ul>
+<li>元素的style属性的值是一个 <code>CSSStyleDeclaration</code> 对象，而非字符串，而其所有属性的值都是字符串(必须带单位，如’20px’)；该对象读取和改变的均是 HTML/JS 显示声明的内联样式，因此外联样式表的样式无法被读取。</li>
+<li>计算样式也是得到一个 <code>CSSStyleDeclaration</code> 对象，使用 <code>window.getComputedStyle(element, null)</code><ul>
+<li>计算样式是只读的</li>
+<li>其属性的值是绝对值，相对值会转化成绝对值</li>
+<li>不计算 margin 这种复合属性，而是 marginLeft 这种基础属性</li>
+<li>未定义 cssText 属性</li>
+<li>不支持 IE8 及以下版本(IE 中类似的方法为 currentStyle)</li>
+</ul>
+</li>
+<li>通过 <code>document.styleSheets</code> 可获得只读的样式列表，包括内联和外联样式</li>
+</ul>
+<h3 id="事件处理"><a href="#事件处理" class="headerlink" title="事件处理"></a>事件处理</h3><ul>
+<li><code>focus</code> 和 <code>blur</code> 事件不会冒泡</li>
+<li>如使用 <code>beforeunload</code> 事件可以询问用户是否离开当前页面</li>
+<li><code>addEventListener()</code> 方法的第三个参数通常省略（省略false即为冒泡模式），相同参数只能注册一次</li>
+<li>IE8使用<code>attachEvent()</code>，只支持事件冒泡（因此没有第三个参数），带 <code>on</code> 前缀，可多次注册多次调用</li>
+<li><p>通过设置属性注册 <code>IE8</code> 的事件对象时通过 <code>window.event</code> 传递而非标准的参数</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">e.onclick = <span class="function"><span class="keyword">function</span> (<span class="params">event</span>) </span>&#123;</div><div class="line">  event = event || <span class="built_in">window</span>.event; <span class="comment">// IE8中通过window.event传递event</span></div><div class="line">&#125;</div><div class="line"><span class="comment">// 而在attachEvent则两种方式均可</span></div></pre></td></tr></table></figure>
+</li>
+<li><p>事件处理程序的运行环境如下</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 通过设置属性注册，会被转换为能存取全局变量的顶级函数，但由于历史原因，也能使用局部变量</span></div><div class="line">e.onclick = <span class="function"><span class="keyword">function</span> (<span class="params">event</span>) </span>&#123;</div><div class="line">  <span class="keyword">this</span> === event <span class="comment">// true, this 指向事件目标</span></div><div class="line">&#125;</div><div class="line"><span class="comment">// 通过事件添加器注册</span></div><div class="line">e.addEventListener(<span class="string">'click'</span>, <span class="function"><span class="keyword">function</span> (<span class="params">event</span>) </span>&#123;</div><div class="line">  <span class="keyword">this</span> === event <span class="comment">// true, this 指向事件目标</span></div><div class="line">&#125;, <span class="literal">false</span>)</div><div class="line"><span class="comment">//</span></div><div class="line">e.attachEvent(<span class="string">'click'</span>, <span class="function"><span class="keyword">function</span> (<span class="params">event</span>) </span>&#123;</div><div class="line">  <span class="keyword">this</span> === event <span class="comment">// false, this 指向全局对象 window</span></div><div class="line">&#125;)</div></pre></td></tr></table></figure>
+</li>
+<li><p>尽量避免使用 HTML 属性来绑定事件处理程序，因为其隐式改过的作用域会导致许多问题</p>
+</li>
+<li>通过 HTML 属性绑定的事件处理程序返回 <code>false</code> 可阻止其默认行为，而通过 <code>addEventListener()</code> 或 <code>attachEvent()</code> 方式则可通过调用 <code>preventDefault()</code> 或者设置其 <code>returnValue</code> 属性实现</li>
+<li>多个事件处理程序作用于同一个事件时，通过 HTML 属性绑定的事件处理程会优先调用（类似内联样式），<code>addEventListener()</code> 则按注册顺序调用</li>
+<li>文档元素的 <code>load</code> 事件会冒泡到 <code>document</code> 对象并停止（不会冒泡到 <code>window</code> 对象），只有整个文档都加载完毕才会出发 <code>window</code> 的 <code>load</code> 事件</li>
+<li>事件传播的三个阶段：事件捕获，目标事件处理程序，事件冒泡（DOM Lv3中标准化）</li>
+<li><code>addEventListener()</code> 调用 <code>stopPropagation()</code>，或 <code>attachEvent()</code> 设置 <code>cancelBubble</code> 属性为  <code>true</code>，均可阻止事件的传播（阻止冒泡）</li>
+<li><strong>window</strong> 对象的 <code>load</code> 事件触发需要文档和全部图片等资源加载完毕后才触发，而 <code>DOMContentLoaded</code> 事件则在 DOM 结构解析完毕且延迟脚本执行完毕即触发（在具备很多图片和异步脚本时比 <code>load</code> 事件更快完成，类似 jQuery 的 <code>$(document).ready()</code> 方法）</li>
+<li>除了<code>mouseenter</code> 和 <code>mouseleave</code> 外的鼠标事件均会冒泡</li>
+</ul>
+<h3 id="脚本化HTTP"><a href="#脚本化HTTP" class="headerlink" title="脚本化HTTP"></a>脚本化HTTP</h3><ul>
+<li>常见的实现（均基于GET）：<ul>
+<li>方法1：设置一个 <code>&lt;img&gt;</code> 元素的src属性，把信息（如当前地址）作为图片 URL 的查询字符串部分，服务器会返回一个信标图片作为请求结果（通常是1×1像素的透明图片），该方法是单向的，但不受同源限制，一般用来跟踪流量</li>
+<li>方法2：使用 <code>&lt;iframe&gt;</code> （通常对用户也不可见）代替 <code>&lt;img&gt;</code>，服务器返回是包含响应内容的 HTML 在 <code>iframe</code> 中显示，脚本再遍历得到目的信息，该方法受限于同源策略</li>
+<li>方法2：设置 <code>&lt;script&gt;</code> 作为容器，该方法兼具方法1和方法2的优点（双向交互，不受同源限制），常见主流实现如<strong>JSONP</strong></li>
+</ul>
+</li>
+<li><strong>GET</strong> 请求适用于 <code>URL</code> 完全制定请求资源，对服务器无任何副作用，且其响应可缓存的情况</li>
+<li><code>xhr.open(&#39;GET&#39;, url, false)</code>，第三个参数显示传入 <code>false</code>，则该请求为同步阻塞的，一般避免使用</li>
+</ul>
+<h3 id="客户端存储"><a href="#客户端存储" class="headerlink" title="客户端存储"></a>客户端存储</h3><ul>
+<li><code>localStorage</code> 和 <code>sessionStorage</code> 均代表同一个 <strong>Storage</strong> 对象（一个持久化关联数组），数组的使用字符串索引和字符串形式的值；两者的区别在于存储时间及访问权限<ul>
+<li><code>localStorage</code> 的存储期限是永久的（除非刻意删除），而 <code>sessionStorage</code> 则在标签（会话级别）关闭后即失效</li>
+<li><code>localStorage</code> 可被同源文档读写（不同标签页间共享），而 <code>sessionStorage</code> 不禁限制同源还限制不同标签页不能共享</li>
+</ul>
+</li>
+<li>当 <code>Storage</code> 数据发生改变时会触发存储事件（onstorage）</li>
+<li>IE8 以上版本支持 Storage，而 IE6/IE7 可用类似的 <code>userData</code> 实现</li>
+<li>同源一般说明：协议、主机名、端口均相同</li>
+<li>要判断浏览器的 <code>cookie</code> 是否启用的兼容方法是快速写入 / 读取测试数据</li>
+<li><code>cookie</code> 的可读性与创建它的页面有关，当前页面同目录及其子目录可见，而对其他页面不可见（可通过设置参数设置其目录路径）</li>
+<li><code>cookie</code> 在大部分浏览器中有大小限制，单个<code>cookie</code> 限制为 4kb</li>
+<li><p>离线存储前需要设置 <code>manifest</code> （MIME类型：<code>text/cache-manifest</code>）清单：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">manifest</span>=<span class="string">"myapp.appcache"</span>&gt;</span>...<span class="tag">&lt;/<span class="name">html</span>&gt;</span></div><div class="line"><span class="comment">&lt;!-- 以下是上述清单文档的内容，更新版本号可让浏览器重新获取新资源以替换过时缓存 --&gt;</span></div><div class="line"># Myapp version 1</div><div class="line">myapp.html</div><div class="line">myapp.css</div><div class="line">myapp.png</div></pre></td></tr></table></figure>
+</li>
+<li><p><code>navigator.onLine</code> 属性可以判断当前应用是否在线</p>
+</li>
+</ul>
+<h3 id="多媒体和图形编程"><a href="#多媒体和图形编程" class="headerlink" title="多媒体和图形编程"></a>多媒体和图形编程</h3><ul>
+<li><code>SVG</code> 是一种描述图形的 XML 语法，IE9 及以上浏览器支持；</li>
+<li>IE9 及以上浏览器支持 <code>&lt;canvas&gt;</code></li>
+</ul>
+<h3 id="HTML5-API"><a href="#HTML5-API" class="headerlink" title="HTML5 API"></a>HTML5 API</h3><ul>
+<li>地理位置 API 通常会弹窗提示用户授权使用位置信息</li>
+<li>利用 <code>location.hash</code> 和对应的 <code>hashchange</code> 事件可以实现IE8中的单页应用历史管理</li>
+<li>利用GTML5新增的 <code>history.pushState</code>、<code>history.replaceState</code> 及对应事件，可灵活管理 SPA 的历史状态</li>
+<li>IE8 支持 <code>window.postMessage()</code> 方法进行窗口间信息传递</li>
+</ul>
+</div></article></div></main><footer><div class="paginator"><a href="/2016/05/03/我所理解的好代码/" class="prev">PREV</a><a href="/2016/03/13/《JavaScript权威指南》阅读笔记（上）/" class="next">NEXT</a></div><div class="copyright"><p>© 2015 - 2017 <a href="https://github.com/Hyifu">Hyifu</a>, powered by <a href="https://hexo.io/" target="_blank">Hexo</a></p></div></footer></div><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" integrity="sha384-crwIf/BuaWM9rM65iM+dWFldgQ1Un8jWZMuh3puxb8TOY9+linwLoI7ZHZT+aekW" crossorigin="anonymous"></script></body></html>

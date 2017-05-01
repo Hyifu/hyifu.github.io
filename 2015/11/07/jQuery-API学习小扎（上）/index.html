@@ -1,0 +1,244 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> jQuery API 学习小扎（上） · 易浮的小窝</title><meta name="description" content="jQuery API 学习小扎（上） - Hyifu"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" href="/favicon.ico"><link rel="stylesheet" href="/css/apollo.css"><link rel="search" type="application/opensearchdescription+xml" href="https://github.com/Hyifu/atom.xml" title="易浮的小窝"></head><body><div class="wrap"><header><a href="/" class="logo-link"><img src="/favicon.png" alt="logo"><h1>易浮的小窝</h1></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/archives/" target="_self" class="nav-list-link">ARCHIVE</a></li></ul></header><main class="container"><div class="post"><article class="post-block"><h1 class="post-title">jQuery API 学习小扎（上）</h1><div class="post-info">Nov 7, 2015</div><div class="post-content"><blockquote>
+<p>作为一个专业的前端开发，你真的会用 jQuery 吗？jQuery 的精妙，随着我对 JavaScript 的理解的加深而愈加感到惊讶  </p>
+<p>其实，如果我们不需要进行对 DOM 的操作兼容（主要针对 IE），那么大抵可以完全抛弃 jQuery，毕竟 ES5 和 DOM-Lv2 已经提供了很多 jQuery 常用的功能了，既然使用 jQuery 是为了开发效率和兼容性考量，那么我是很推荐尽量使用 jQuery 提供的大部分功能，毕竟这样对代码阅读者和书写者都是很舒服的事情，使用 <code>$.each()</code> 代替了常规的 <code>for</code> 循环，使用 <code>$.isEmptyObject(object)</code> 来判断空对象，等等</p>
+<p>很多人觉得使用 jQuery 不够高端，甚至觉得它会带来性能问题，但其实我认为，对于快速迭代的考虑，代码的可读性和兼容性优先级要远高于那点可怜的性能加成（事实上，自己造的轮子真不一定比 jQuery 性能好，简单的例子，jQuery 通常会考虑缓存 DOM，同时不会忘记卸载过期事件）</p>
+</blockquote>
+<a id="more"></a>
+<p>本文档基于 <em><a href="http://www.css88.com/jqapi-1.9/" target="_blank" rel="external">jQuery API 中文文档</a></em> 总结</p>
+<h2 id="关于jQuery的最佳实践"><a href="#关于jQuery的最佳实践" class="headerlink" title="关于jQuery的最佳实践"></a>关于jQuery的最佳实践</h2><blockquote>
+<p>可参考 <em>阮一峰</em> 的整理 <a href="http://www.ruanyifeng.com/blog/2011/08/jquery_best_practices.html" target="_blank" rel="external">jQuery最佳实践</a>，关键点如下：</p>
+</blockquote>
+<ol>
+<li>使用最新版本的 jQuery</li>
+<li>用对选择器（尽量用 ID）</li>
+<li>理解子元素和父元素的关系</li>
+<li>不要过度使用 jQuery</li>
+<li>做好缓存</li>
+<li>使用链式写法</li>
+<li>事件的委托处理</li>
+<li>少改动 DOM 结构</li>
+<li>正确处理循环</li>
+<li>尽量少生成 jQuery 对象</li>
+<li>选择作用域链最短的方法</li>
+<li>使用 <strong>Pub / Sub</strong> 模式管理事件（观察者模式）</li>
+</ol>
+<h2 id="选择器"><a href="#选择器" class="headerlink" title="选择器"></a>选择器</h2><blockquote>
+<p>jQuery 实现的选择器方法很多已经大放异彩，堪称业界典范，同时这个抽出来单独作为一个标准——Sizzle 选择器引擎</p>
+</blockquote>
+<h4 id="避免使用的选择器"><a href="#避免使用的选择器" class="headerlink" title="避免使用的选择器"></a>避免使用的选择器</h4><blockquote>
+<p>以下的选择器均有或多或少的性能问题，主要原因是无法充分利用原生 DOM 提供的 <code>querySelectorAll()</code> 方法</p>
+</blockquote>
+<ul>
+<li><code>$(&#39;*&#39;)</code></li>
+<li><code>$(&#39;:eq&#39;)</code></li>
+<li><code>$(&#39;:gt&#39;)</code></li>
+<li><code>$(&#39;:lt&#39;)</code></li>
+<li><code>$(&#39;:not&#39;)</code></li>
+<li><code>$(&#39;:has&#39;)</code></li>
+<li><code>$(&#39;:file&#39;)</code> （建议替换成 <code>$(&#39;selector[type = &quot;file&quot;]&#39;)</code>）</li>
+<li><code>$(&#39;:checkbox&#39;)</code> （建议替换成 <code>$(&#39;selector[type = &quot;checkbox&quot;]&#39;)</code>）</li>
+<li><code>$(&#39;:image&#39;)</code> （建议替换成 <code>$(&#39;selector[type = &quot;image&quot;]&#39; )</code>）</li>
+<li><code>$(&#39;:password&#39;)</code> （建议替换成 <code>$(&#39;selector[type = &quot;password&quot;]&#39;)</code>）</li>
+<li><code>$(&#39;:radio&#39;)</code> （建议替换成 <code>$(&#39;selector[type = &#39;radio&#39;]&#39;)</code>）</li>
+<li><code>$(&#39;:reset&#39;)</code> （建议替换成 <code>$(&#39;selector[type = &#39;reset&#39;]&#39;)</code>）</li>
+<li><code>$(&#39;[attribute != &quot;value&quot;]&#39;)</code> （建议替换成 <code>$(&#39;class&#39;)</code> ）</li>
+</ul>
+<h4 id="尽量先使用纯CSS选择器，再使用-filter-39-selector-39-代替的选择器"><a href="#尽量先使用纯CSS选择器，再使用-filter-39-selector-39-代替的选择器" class="headerlink" title="尽量先使用纯CSS选择器，再使用 .filter(&#39;selector&#39;) 代替的选择器"></a>尽量先使用纯CSS选择器，再使用 <code>.filter(&#39;selector&#39;)</code> 代替的选择器</h4><ul>
+<li><p><code>$(&#39;:hidden&#39;)</code> 和 <code>$(&#39;:visible&#39;)</code></p>
+<blockquote>
+<p><code>visibility: hidden</code> 或 <code>opacity: 0</code> 在 jQuery 中被认为是可见的，因为他们仍然占据布局空间<br>相对地，不可见主要根据以下四点判断（jQuery 3.0 对该标准有所修改）</p>
+</blockquote>
+<ul>
+<li>他们的CSS <code>display</code> 值是 <code>none</code></li>
+<li>他们是 <code>type=&quot;hidden&quot;</code> 的表单元素</li>
+<li>它们的宽度和高度都显式设置为 <code>0</code></li>
+<li>一个祖先元素是隐藏的，因此该元素是不会在页面上显示</li>
+</ul>
+</li>
+<li><code>$(&#39;:animated&#39;)</code></li>
+<li><code>$(&#39;:even&#39;)</code> 和 <code>$(&#39;:odd&#39;)</code>（注意与 <code>$(&#39;:nth-child(even)&#39;)</code> 及 <code>$(&#39;:nth-child(odd)&#39;)</code> 的区别）</li>
+<li><code>$(&#39;:first&#39;)</code> 和 <code>$(&#39;:last&#39;)</code></li>
+<li><code>$(&#39;:header&#39;)</code></li>
+<li><code>$(&#39;:empty&#39;)</code> 和 <code>$(&#39;:parent&#39;)</code> 涉及到的子元素包括文本节点</li>
+<li>表单元素：<code>$(&#39;:button&#39;)</code>，<code>$(&#39;:input&#39;)</code>，<code>$(&#39;:selected&#39;)</code>，<code>$(&#39;:submit&#39;)</code>，<code>$(&#39;:text&#39;)</code></li>
+</ul>
+<h4 id="比较特殊的选择器"><a href="#比较特殊的选择器" class="headerlink" title="比较特殊的选择器"></a>比较特殊的选择器</h4><ul>
+<li><code>$(&#39;:target&#39;)</code></li>
+<li><code>$(&#39;:lang&#39;)</code></li>
+<li><code>$(&#39;:root&#39;)</code> （建议换用 <code>$(&#39;html&#39;)</code> 替换，提高可读性）</li>
+<li><code>$(&#39;:contains(text)&#39;)</code> 查找的一个文本字符串，区分大小写</li>
+<li><code>$(&#39;:nth-child(n)&#39;)</code> 索引从1开始</li>
+<li><code>$(&#39;:focus&#39;)</code> 如果正在寻找当前的焦点元素，可使用 <code>$(document.activeElement)</code> 检索，而不必查找整个 DOM 树</li>
+<li><code>$(&#39;:disabled&#39;)</code> 检查元素的 <code>disabled</code> 属性的布尔值，<code>$([&#39;type = &quot;disabled&quot;]&#39;)</code> 检查是否存在的 <code>disabled</code> 属性</li>
+</ul>
+<h2 id="CSS和属性"><a href="#CSS和属性" class="headerlink" title="CSS和属性"></a>CSS和属性</h2><h4 id="用法区别"><a href="#用法区别" class="headerlink" title="用法区别"></a>用法区别</h4><ul>
+<li><code>.prop()</code> 方法 方法返回 <code>property</code> 的布尔值，<code>.attr()</code> 方法返回 <code>attributes</code> 的字面量值，区别使用</li>
+<li><code>.prop()</code>，<code>.attr()</code>，<code>.val()</code>，<code>.css()</code> 等方法只获取或设置第一个匹配元素的属性值 。如果元素上没有该属性，或者如果没有匹配的元素。那么该方法会返回 <code>undefined</code> 值</li>
+<li><code>.css(&#39;height&#39;)</code> 和 <code>.height()</code> 之间的区别是后者返回一个没有单位的数值（例如，400），前者是返回带有完整单位的字符串（例如，400px）</li>
+<li><p>尺寸计算方法间的区别<br><img src="http://www.css88.com/jqapi-1.9/images/0042_04_01.png" alt="height"><br><img src="http://www.css88.com/jqapi-1.9/images/0042_04_02.png" alt="innderHeight"><br><img src="http://www.css88.com/jqapi-1.9/images/0042_04_03.png" alt="outerHeight"><br><img src="http://www.css88.com/jqapi-1.9/images/0042_04_04.png" alt="width"><br><img src="http://www.css88.com/jqapi-1.9/images/0042_04_05.png" alt="innerWidth"><br><img src="http://www.css88.com/jqapi-1.9/images/0042_04_06.png" alt="outerWidth"></p>
+</li>
+<li><p>计算 <code>window</code> 和 <code>document</code> 的高度</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 获取浏览器视口宽高 viewport</span></div><div class="line">$(<span class="built_in">window</span>).height();</div><div class="line"><span class="comment">// 获取文档宽高 document</span></div><div class="line">$(<span class="built_in">document</span>).height();</div></pre></td></tr></table></figure>
+</li>
+<li><p><code>.offset()</code> 方法检索一个元素相对于文档 <code>document</code> 的当前位置。和 <code>.position()</code> 的差别是：<code>.position()</code> 是相对于相对于父级元素的位移</p>
+</li>
+<li><code>.offsetParent()</code> 取得离指定元素最近的含有定位信息的祖先元素</li>
+</ul>
+<h4 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h4><ul>
+<li><p>当设置样式名 <code>(&quot;class&quot;)</code> 属性时，必须使用引号，因为 <code>class</code> 是 JavaScript 标识符，为保持风格统一和安全，建议 API 调用传入类似对象的属性名均使用引号，如下</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$(<span class="string">'body'</span>).attr(&#123;</div><div class="line">  <span class="string">'alt'</span>: <span class="string">'Beijing Brush Seller'</span>,</div><div class="line">  <span class="string">'class'</span>: <span class="string">'photo'</span></div><div class="line">&#125;);</div></pre></td></tr></table></figure>
+</li>
+<li><p><code>.prop()</code>，<code>.attr()</code></p>
+<blockquote>
+<p><strong>Properties</strong> 属性一般影响 DOM 元素的状态并不会改变序列化的 <strong>HTML attribute</strong> 属性。例如，<code>input</code> 元素的 <code>value</code> 属性，<code>input</code> 和 <code>button</code> 元素的 <code>disabled</code> 属性，以及 <code>checkbox</code> 的 <code>checked</code> 属性。应该使用 <code>.prop()</code> 方法设置 <code>disabled</code> 和 <code>checked</code> 属性，而不是使用 <code>.attr()</code> 方法</p>
+<p><code>.val()</code> 方法应该用于存取 <code>value</code> 值。还要注意的是 <code>.removeProp()</code> 方法不应该被用来设置这些属性为 <code>false</code>。一旦原生的属性被移除，就无法再被添加</p>
+<p>在 <strong>IE8</strong> 及以下版本，不要使用 <code>.prop()</code> 对非基本类型（<code>number</code>、<code>string</code> 或 <code>boolean</code>）的属性赋值，为了安全请使用 <code>.data()</code> 方法</p>
+<p>尺寸相关的 API 返回的数字， 包括的 <code>.height()</code>， 在某些情况下可能带有小数。你的代码不应该假定它是一个整数。  另外，当页面被用户缩放时，返回的尺寸可能是不正确的;浏览器没有一个公开的 API 来检测这种情况。</p>
+<p>当元素或其父元素被隐藏时，<code>.height()</code> 得到的值不能保证准确。要得到准确的值，你应该确保该元素在使用 <code>.height()</code> 前可见。jQuery 将尝试临时显示，然后再隐藏元素来测量元素尺寸，但这是不可靠的，（即使得到准确的值）也会显著影响页面的性能。这总临时显示然后再隐藏的测量功能，可能在 jQuery 未来的版本中删除。</p>
+</blockquote>
+</li>
+</ul>
+<h4 id="实用技巧"><a href="#实用技巧" class="headerlink" title="实用技巧"></a>实用技巧</h4><ul>
+<li><p>通过函数回调的方法动态获取 / 修改属性等</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 适用于.prop(), .attr(), .val(), .addClass(), .removeClass(), .css(), toggleClass()</span></div><div class="line">$(<span class="string">'div'</span>).attr(<span class="string">'title'</span>, <span class="function"><span class="keyword">function</span> (<span class="params">index, val</span>) </span>&#123;</div><div class="line">	<span class="keyword">return</span> index + val; <span class="comment">// index 为索引，val为属性title的值</span></div><div class="line">&#125;);</div><div class="line"><span class="comment">//实际应用</span></div><div class="line">$(<span class="string">'img'</span>).attr(<span class="string">'src'</span>, <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</div><div class="line">  <span class="keyword">return</span> <span class="string">'/resources/'</span> + <span class="keyword">this</span>.title; <span class="comment">// title为图片名，动态修改其相对路径</span></div><div class="line">&#125;);</div></pre></td></tr></table></figure>
+</li>
+<li><p><code>.val()</code> 方法</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 通过 .val() 方法从 textarea 元素中取得的值是不含有回车（\r）字符的。</span></div><div class="line"><span class="comment">// 但是如果该值是通过 XHR 传递给服务器的，回车（\r）字符会被保留（或者是被浏览器添加的，但是在原始数据中并不包含回车（\r））。</span></div><div class="line">$.valHooks.textarea = &#123; <span class="comment">// 原始数据中保留回车（\r）字符</span></div><div class="line">  get: <span class="function"><span class="keyword">function</span> (<span class="params">elem</span>) </span>&#123;</div><div class="line">    <span class="keyword">return</span> elem.value.replace( <span class="regexp">/\r?\n/g</span>, <span class="string">"\r\n"</span> );</div><div class="line">  &#125;</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<h4 id="特殊"><a href="#特殊" class="headerlink" title="特殊"></a>特殊</h4><ul>
+<li><code>$.cssHooks</code> <em>直接向 jQuery 中添加钩子，用于覆盖设置或获取特定 <strong>CSS </strong> 属性时的方法，目的是为了标准化 <em>*CSS</em></em> 属性名或创建自定义属性</li>
+<li><code>.toggleClass()</code> 可以传入 <strong>Boolean</strong> 值或回调函数来灵活调整切换</li>
+</ul>
+<h4 id="避免使用"><a href="#避免使用" class="headerlink" title="避免使用"></a>避免使用</h4><ul>
+<li><code>$.data( element, key, value )</code> <em>存储任意数据到指定的元素，返回设置的值。</em> 允许我们在DOM元素上绑定任意类型的数据，避免了循环引用的内存泄漏风险, 这是一个底层的方法，你应该用 <code>.data()</code> 代替</li>
+</ul>
+<h2 id="操作"><a href="#操作" class="headerlink" title="操作"></a>操作</h2><h4 id="用法区别-1"><a href="#用法区别-1" class="headerlink" title="用法区别"></a>用法区别</h4><ul>
+<li><code>.prepend(&#39;将要插入的内容&#39;)</code> 和 <code>.prependTo(&#39;位置&#39;)</code> 均为 <strong>内部</strong> 插入后面， <code>.append(&#39;将要插入的内容&#39;)</code> 和<code>.appendTo(&#39;位置&#39;)</code> 均为 <strong>内部</strong> 插入前面</li>
+<li><code>.after(&#39;将要插入的内容&#39;)</code> 和 <code>.insertAfter(&#39;位置&#39;)</code> 均为 <strong>外部</strong> 插入后面，<code>.before(&#39;将要插入的内容&#39;)</code> 和<code>.insertBefore(&#39;位置&#39;)</code> 均为 <strong>外部</strong> 插入前面</li>
+<li><code>.empty()</code> 移除节点内容（不含节点）并解除数据 / 事件关联，<code>.remove()</code> 移除节点内容（含节点）并解除数据 / 事件关联，<code>.detach()</code> 移除节点内容（含节点）但不解除数据 / 事件关联（再插回来还能用）</li>
+<li><code>.unwrap()</code> 删除元素的父级元素。和 <code>.wrap()</code> 的相反</li>
+<li><code>.replaceAll(&#39;位置&#39;)</code> 和 <code>.replaceWith(&#39;内容&#39;)</code> 功能类似，目标和源相反，用来替换的元素从老地方移到新位置，而不是复制，并且会删除与节点相关联的所有数据和事件处理程序</li>
+</ul>
+<h4 id="特殊-1"><a href="#特殊-1" class="headerlink" title="特殊"></a>特殊</h4><ul>
+<li><code>.clone([withDataAndEvents] [, deepWithDataAndEvents])</code> 深度复制所有匹配的元素集合，包括所有匹配元素、匹配元素的下级元素、文字节点</li>
+</ul>
+<h4 id="注意事项-1"><a href="#注意事项-1" class="headerlink" title="注意事项"></a>注意事项</h4><ul>
+<li><p>使用 <code>.html()</code> 时元素中的任何内容会完全被新的内容取代。新的内容替换前，jQuery 从子元素删除其他结构，如数据和事件处理程序（这样可以防止内存溢出）</p>
+<blockquote>
+<p>在 <strong>IE</strong> 中（包括 IE9），设置 <strong>HTML</strong> 元素的文本内容可能会破坏其子节点的文本节点，结果导致子节点的文本节点从文档中被删除。如果你想保留这些 DOM 元素的引用，需要他们将保持不变，请使用 <code>.empty()</code> 来代替 <code>.html(string)</code>以便从文档中删除元素之前的元素被分配到新的字符串</p>
+</blockquote>
+</li>
+<li><p>要设置一个 <code>&lt;script&gt;</code> 元素的内容， 其不包含 <strong>HTML</strong>， 使用 <code>.text()</code> 方法而不是 <code>.html()</code>， <code>.text()</code> 方法不能使用在 <code>input</code> 元素或 <code>scripts</code> 元素上。<code>input</code> 或 <code>textarea</code> 需要使用 <code>.val()</code> 方法获取或设置文本值。得到 <code>scripts</code> 元素的值，使用 <code>.html()</code> 方法</p>
+</li>
+</ul>
+<h2 id="遍历"><a href="#遍历" class="headerlink" title="遍历"></a>遍历</h2><h4 id="用法区别-2"><a href="#用法区别-2" class="headerlink" title="用法区别"></a>用法区别</h4><ul>
+<li><p><code>.filter(function(index))</code> 通过函数来进行高级筛选</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$(<span class="string">'li'</span>).filter(<span class="function"><span class="keyword">function</span> (<span class="params">index</span>) </span>&#123; <span class="comment">//this是当前DOM元素，index为索引</span></div><div class="line">  <span class="keyword">return</span> $(<span class="string">'strong'</span>, <span class="keyword">this</span>).length == <span class="number">1</span>;</div><div class="line">&#125;).css(<span class="string">'background-color'</span>, <span class="string">'red'</span>);</div></pre></td></tr></table></figure>
+</li>
+<li><p><code>.map(callback(index, domElement))</code> 方法特别适用于获取或设置元素集合中的值</p>
+</li>
+<li><code>.slice(start [, end ])</code> 根据指定的下标范围，过滤匹配的元素集合，并生成一个新的 jQuery 对象</li>
+<li><code>add()</code> 添加新 jQuery 对象到堆栈，而 <code>addback()</code> 添加堆栈中元素集合到当前集合</li>
+<li><code>.contents()</code> 和 <code>.children()</code> 检索直接子元素，<code>.find()</code> 检索后代元素，其中 <code>.contents()</code> 包括文本节点和注释节点，以及 jQuery 对象中产生的 HTML 元素</li>
+<li><code>.parent()</code> 匹配直接父元素， <code>.parents()</code> 匹配祖先元素（不包括自己，可能返回元素数组）， <code>.parentsUntil()</code> 查找并返回遇到跟参数匹配的元素（不包括）前的所有祖先元素， <code>.closest()</code> 匹配祖先元素（包括自己，只返回最近一个）<blockquote>
+<p><code>.next()</code>、<code>.nextAll()</code> 与 <code>.nextUntil()</code> 和 <code>.prev()</code>、<code>.prevAll()</code> 与 <code>.prevUntil()</code> 两组用法类似</p>
+<p><code>$(&quot;html&quot;).parent()</code> 方法返回一个包含 <strong>document</strong> 的集合，而 <code>$(&quot;html&quot;).parents()</code> 返回一个空集合</p>
+</blockquote>
+</li>
+</ul>
+<h4 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h4><ul>
+<li><p><code>.each(function(index, Element))</code> 方法用来让 DOM 循环结构更简单更不易出错。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">$(<span class="string">'li'</span>).each(<span class="function"><span class="keyword">function</span> (<span class="params">index</span>) </span>&#123;</div><div class="line">  <span class="built_in">console</span>.log(index + <span class="string">': '</span> + $(<span class="keyword">this</span>).text()); <span class="comment">// this 总是指向对应的 DOM 元素，使用 $(this) 获得的是 jQuery 对象</span></div><div class="line">  <span class="keyword">if</span> (index === <span class="number">3</span>) &#123;</div><div class="line">    <span class="keyword">return</span> <span class="literal">false</span>; <span class="comment">// 使用return提前结束each()</span></div><div class="line">  &#125;</div><div class="line">&#125;);</div></pre></td></tr></table></figure>
+</li>
+<li><p><code>end()</code> 可用于链式写法 <em>终止在当前链的最新过滤操作，并返回匹配的元素的以前状态</em></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$(<span class="string">'ul.first'</span>).find(<span class="string">'.foo'</span>)</div><div class="line">  .css(<span class="string">'background-color'</span>, <span class="string">'red'</span>)</div><div class="line">.end().find(<span class="string">'.bar'</span>) <span class="comment">// 返回到 $('ul.first') 的栈</span></div><div class="line">  .css(<span class="string">'background-color'</span>, <span class="string">'green'</span>)</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="效果"><a href="#效果" class="headerlink" title="效果"></a>效果</h2><h4 id="基础动画"><a href="#基础动画" class="headerlink" title="基础动画"></a>基础动画</h4><ul>
+<li>所有jQuery效果都能通过设置 <code>jQuery.fx.off = true</code> 全局地关闭，效果等同于持续时间设置为 <code>0</code></li>
+<li>元素的 <code>display</code> 原本属性值保存在 jQuery 的数据缓存，这样使用切换显示的方法时，将恢复其原本 <code>display</code> 值</li>
+<li>可以传入一个回调在对应动画完成后运行，比如在 <em>弹窗中，淡出后删除其对应 DOM 结构</em></li>
+<li><code>.fadeTo()</code> 方法调整匹配元素的透明度</li>
+</ul>
+<h4 id="自定义动画"><a href="#自定义动画" class="headerlink" title="自定义动画"></a>自定义动画</h4><ul>
+<li>建议避免使用复杂的 jQuery 动画，使用 CSS3 动画以在高级浏览器中获得更好性能与表现</li>
+</ul>
+<h2 id="事件"><a href="#事件" class="headerlink" title="事件"></a>事件</h2><blockquote>
+<p>jQuery 的事件绑定子系统为每一个事件处理函数分配一个唯一的 <strong>ID</strong> 用于对其进行跟踪，这样的话，当需要解除绑定特定的事件处理时，系统就知道该解除绑定哪个事件处理函数</p>
+</blockquote>
+<h4 id="常见事件类型及用法"><a href="#常见事件类型及用法" class="headerlink" title="常见事件类型及用法"></a>常见事件类型及用法</h4><ul>
+<li><p><code>$(document).ready(handler)</code> 与 <code>$(handler)</code> 等价，前者更语义化</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">jQuery(<span class="built_in">document</span>).ready(<span class="function"><span class="keyword">function</span> (<span class="params">$</span>) </span>&#123;</div><div class="line">  <span class="comment">// 当引入其他类库时，在此可正常使用 $</span></div><div class="line">&#125;);</div></pre></td></tr></table></figure>
+</li>
+<li><p><code>.ready()</code> 方法通常和 <code>&lt;body onload=&quot;handler&quot;&gt;</code> 属性是不兼容的。如果 <code>load</code> 必须使用，要么不使用 <code>.ready()</code>，要么使用 jQuery 的 <code>.load()</code> 方法向 <code>window</code> 或一些指定的元素（例如，图片）绑定 <code>load</code> 事件</p>
+</li>
+<li>为代码统一及便于记忆，建议事件绑定均使用通用方法而不是速写方式，首选方法 <code>.on()</code>、<code>.off()</code> 和 <code>.trigger()</code>：<ul>
+<li>浏览器事件：<code>.resize()</code> 与 <code>.scroll()</code></li>
+<li>表单事件：<code>.blur()</code>，<code>.change()</code>，<code>.focus()</code>，<code>.select()</code>，<code>.submit()</code></li>
+<li>键盘事件：<code>.keydown()</code>， <code>.keypress()</code>， <code>.keyup()</code></li>
+<li>鼠标事件：<code>.click()</code>， <code>.contextmenu()</code>，<code>.dbclick()</code>，<code>.focusin()</code>， <code>.foucsout()</code>， <code>.hover()</code>，<code>.mouseenter()</code>，<code>.mouseleave()</code>，<code>.mousedown()</code>，<code>.mouseup()</code>，<code>.mousemove()</code>，<code>mouseout()</code></li>
+</ul>
+</li>
+<li><code>resize</code> 事件处理中的代码，不应该依赖于事件被调用的次数。由于不同浏览器对该事件实现的方式不同，该事件被调用的时机也不同</li>
+<li><p>一个元素的值改变的时候将触发 <code>change</code> 事件。此事件仅限用于 <code>&lt;input&gt;</code>，<code>&lt;textarea&gt;</code> 和 <code>&lt;select&gt;</code> 元素</p>
+<blockquote>
+<p>注意：使用 JavaScript 改变输入元素的值，例如使用 <code>.val()</code>，将不会触发该事件。</p>
+</blockquote>
+</li>
+<li><p>在一个元素中进行文本选择时，<code>select</code> 事件就会被触发。此事件只用在 <code>&lt;input type=&quot;text&quot;&gt;</code> 和 <code>&lt;textarea&gt;</code></p>
+</li>
+<li><p>按下并按住这个键（不松开）的时，<code>keydown</code> 事件只触发一次，但是 <code>keypress</code> 会在每个字符插入的时候都会触发。组合键(如 <code>Shift</code> )会触发 <code>keydown</code> 事件，但不会触发 <code>keypress</code> 事件。</p>
+<blockquote>
+<p>值得注意的是 <code>keydown</code> 和 <code>keyup</code> 提供一个代码，表示哪一个键被按下，而 <code>keypress</code> 表示被输入哪个字符。</p>
+<p>例如，按下了小写的 <code>a</code>，在 <code>keydown</code> 和 <code>keyup</code> 中，对应该键的代码是 <code>65</code>，但是对于 <code>keypress</code> 而言，接收到的代码是 <code>97</code>。如果是大写 <code>A</code> 的话，则所有的相关事件接收到的代码都是 <code>65</code> 。</p>
+<p>由于这个区别，若想捕获敲击了哪个特殊键的话，例如方向键，使用 <code>.keydown()</code> 或 <code>.keyup()</code> 更好。如果要捕获实际输入文本，<code>.keypress()</code> 可能是一个更好的选择。</p>
+</blockquote>
+</li>
+<li><p><code>focusin</code>（或 <code>focusout</code>）事件会在元素（或者其内部的任何元素）获得焦点时触发。这跟 <code>focus</code>（或<code>blur</code>）事件的显著区别在于，它可以在父元素上检测子元素获得焦点的情况（换而言之，它支持事件冒泡）</p>
+</li>
+<li><p><code>.hover()</code> 方法同时绑定 <code>mouseenter</code> 和 <code>mouseleave</code> 事件</p>
+<blockquote>
+<p><code>$(selector).hover(fnIn, fnOut)</code> 是  $<code>(selector).mouseenter(fnIn).mouseleave(fnOut)</code> 的简写</p>
+</blockquote>
+</li>
+<li><p><code>mouseleave</code> 与 <code>mouseout</code>、<code>mouseenter</code> 与 <code>mouseover</code> 之间的不同之处是事件的冒泡的方式, 一般用前者</p>
+<blockquote>
+<p><code>mouseleave</code> 事件是 <code>IE</code> 专有的, 由于该事件在平时很有用, jQuery 模拟了这一事件，使它可用于所有浏览器</p>
+</blockquote>
+</li>
+</ul>
+<h4 id="事件绑定"><a href="#事件绑定" class="headerlink" title="事件绑定"></a>事件绑定</h4><ul>
+<li>使用 <code>.on()</code> 方法带代替 <code>.delegate()</code> （多元素绑定）和 <code>.bind()</code>（单元素绑定）方法将事件处理程序绑定到 <code>document</code></li>
+<li><code>one()</code> 方法绑定一次性事件, 等价于 <code>.on()</code> 触发事件后马上 <code>off()</code></li>
+<li><code>.trigger()</code> 模拟事件的触发，具备合成的 event 对象。如不希望触发默认事件或冒泡，使用 <code>.triggerHandler()</code></li>
+</ul>
+<h4 id="事件对象"><a href="#事件对象" class="headerlink" title="事件对象"></a>事件对象</h4><ul>
+<li><code>event.currentTarget</code> 总是等于该函数的 <code>this</code></li>
+<li><code>event.data</code> 作为一个数据对象传递给一个事件</li>
+<li><code>event.preventDefault()</code> 阻止默认事件行为</li>
+<li><code>event.isDefaultPrevented()</code>、<code>event.isImmediatePropagationStopped()</code> 和 <code>event.isPropagationStopped()</code>均为判断对应方法是否调用过，返回布尔值</li>
+<li><code>event.pageX</code> 和 <code>event.pageY</code> 为鼠标相对于 <code>document</code> 的左边缘的位置（左/右）</li>
+<li><code>event.stopImmediatePropagation()</code> 阻止 <em>剩余</em> 的事件处理函数执行并且防止事件冒泡到 DOM 树; 而<code>event.stopPropagation()</code> 不会阻止同一元素上的其它事件，同样防止事件冒泡到 DOM 树上（不触发任何前辈元素上的事件）</li>
+<li><p><code>event.target</code> 是注册事件时的元素（或子元素）, 通过比较它与 <code>this</code> 来确定事件是否由冒泡触发。观察<code>event.relatedTarget</code> 找到事件涉及的其他 DOM 元素</p>
+<blockquote>
+<p><code>event.relatedTarget</code> 对于 <code>mouseout</code> 事件，指向被进入的元素； 对于 <code>mouseover</code> 事件，指向被离开的元素</p>
+</blockquote>
+</li>
+<li><p>事件处理函数的最后返回值会被记录在 <code>event.result</code> 中</p>
+</li>
+<li><p><code>event.timeStamp</code> 记录事件的时间戳</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> last</div><div class="line">$(<span class="string">'div'</span>).click(<span class="function"><span class="keyword">function</span>(<span class="params">event</span>) </span>&#123;</div><div class="line">    <span class="keyword">if</span> (last) &#123;</div><div class="line">        <span class="built_in">console</span>.log(event.timeStamp - last); <span class="comment">//打印两次点击时间差</span></div><div class="line">    &#125;</div><div class="line">    last = event.timeStamp;</div><div class="line">&#125;);</div></pre></td></tr></table></figure>
+</li>
+<li><p><code>event.which</code> 将 <code>event.keyCode</code> 和 <code>event.charCode</code> 标准化了。用来监视鼠标和键盘输入</p>
+</li>
+</ul>
+<h4 id="特殊-2"><a href="#特殊-2" class="headerlink" title="特殊"></a>特殊</h4><ul>
+<li><code>$.holdReady()</code> 方法允许调用者延迟 jQuery 的 <code>ready</code> 事件（在事件触发前）<blockquote>
+<p>为了延迟 <code>ready</code> 事件，首先要调用 <code>$.holdReady(true)</code>，当 <code>ready</code> 事件准备执行时，再调用 <code>$.holdReady(false)</code></p>
+</blockquote>
+</li>
+<li>命名空间 <code>event.namespace</code> 的用法<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">$(<span class="string">'p'</span>).bind(<span class="string">'test.something'</span>, <span class="function"><span class="keyword">function</span> (<span class="params">event</span>) </span>&#123; <span class="comment">// 绑定一个自定义事件</span></div><div class="line">    alert(event.namespace); <span class="comment">// event指向test</span></div><div class="line">&#125;);</div><div class="line">$(<span class="string">"button"</span>).click(<span class="function"><span class="keyword">function</span>(<span class="params">event</span>) </span>&#123; <span class="comment">// 通过浏览器事件来间接触发自定义命名事件</span></div><div class="line">    $(<span class="string">'p'</span>).trigger(<span class="string">'test.something'</span>);</div><div class="line">&#125;);</div></pre></td></tr></table></figure>
+</li>
+</ul>
+</div></article></div></main><footer><div class="paginator"><a href="/2015/11/12/jQuery-API学习小扎（下）/" class="prev">PREV</a></div><div class="copyright"><p>© 2015 - 2017 <a href="https://github.com/Hyifu">Hyifu</a>, powered by <a href="https://hexo.io/" target="_blank">Hexo</a></p></div></footer></div><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" integrity="sha384-crwIf/BuaWM9rM65iM+dWFldgQ1Un8jWZMuh3puxb8TOY9+linwLoI7ZHZT+aekW" crossorigin="anonymous"></script></body></html>

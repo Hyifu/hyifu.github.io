@@ -1,0 +1,149 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> jQuery API 学习小扎（下） · 易浮的小窝</title><meta name="description" content="jQuery API 学习小扎（下） - Hyifu"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" href="/favicon.ico"><link rel="stylesheet" href="/css/apollo.css"><link rel="search" type="application/opensearchdescription+xml" href="https://github.com/Hyifu/atom.xml" title="易浮的小窝"></head><body><div class="wrap"><header><a href="/" class="logo-link"><img src="/favicon.png" alt="logo"><h1>易浮的小窝</h1></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/archives/" target="_self" class="nav-list-link">ARCHIVE</a></li></ul></header><main class="container"><div class="post"><article class="post-block"><h1 class="post-title">jQuery API 学习小扎（下）</h1><div class="post-info">Nov 12, 2015</div><div class="post-content"><blockquote>
+<p>续，非DOM操作的部分，这里提供了很多小工具，但精华的部分还是关于回调对象和延迟对象。</p>
+</blockquote>
+<a id="more"></a>
+<h2 id="AJAX事件"><a href="#AJAX事件" class="headerlink" title="AJAX事件"></a>AJAX事件</h2><h4 id="全局-辅助方法"><a href="#全局-辅助方法" class="headerlink" title="全局/辅助方法"></a>全局/辅助方法</h4><ul>
+<li><p>jQuery 全局 <strong>Ajax</strong> 事件的所有处理程序，必须附加到 <code>document</code> 上</p>
+<blockquote>
+<p>无论哪一个 <strong>Ajax</strong> 请求被发送，所有 <strong>Ajax</strong> 全局处理器都将被执行</p>
+<p><code>$.ajax()</code> 或 <code>$.ajaxSetup()</code> 调用时，<code>global</code> 选项设置为 <code>false</code> 时将不触发全局事件</p>
+</blockquote>
+</li>
+<li><p><code>.serialize(JQ对象)</code>、<code>.serializeArray(array)</code> 和 <code>$.param(obj)</code> 均用来序列化格式：</p>
+<blockquote>
+<p><code>$.param(obj)</code> =&gt; URL查询字符串或 <strong>Ajax</strong> 请求<br><code>.serializeArray(array)</code> =&gt; 返回 <strong>JSON</strong> 格式的字符串<br><code>.serialize()</code> =&gt; 将表单元素的值编译成字符串</p>
+</blockquote>
+</li>
+</ul>
+<h3 id="接口及快捷方式"><a href="#接口及快捷方式" class="headerlink" title="接口及快捷方式"></a>接口及快捷方式</h3><ul>
+<li>由于浏览器的安全限制，大多数 <strong>Ajax</strong> 有同源政策限制：该请求不能成功地检索来自不同的域，子域或协议的数据</li>
+<li><p><code>$.get(url [,data][,success(data,textStatus,jqXHR)][, dataType])</code>，相当于</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">$.ajax(&#123;</div><div class="line">    <span class="attr">url</span>: url,</div><div class="line">    <span class="attr">data</span>: data,</div><div class="line">    <span class="attr">success</span>: success,</div><div class="line">    <span class="attr">dataType</span>: dataType</div><div class="line">&#125;);</div><div class="line"></div><div class="line">$.get(<span class="string">'test.html'</span>, <span class="function"><span class="keyword">function</span> (<span class="params">data</span>) </span>&#123; <span class="comment">// 最常见用法</span></div><div class="line">    <span class="comment">// do something...</span></div><div class="line">&#125;);</div></pre></td></tr></table></figure>
+</li>
+<li><p><code>$.getJSON(url [, data][, success(data, textStatus,jqXHR)])</code> 请求 <strong>JSON</strong> 编码数据</p>
+</li>
+<li><code>$.getScript(url [, success(data, textStatus, jqXHR)])</code> 请求 <strong>JavaScript</strong> 文件</li>
+<li><code>.load( url [, data] [, complete(responseText, textStatus, XMLHttpRequest)])</code><br>  <code>$(&#39;#result&#39;).load(&#39;ajax/test.html&#39;);</code></li>
+<li><code>$.post(url [, data] [, success(data, textStatus, jqXHR)] [, dataType])</code><figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$.post(<span class="string">'test.php'</span>, &#123; <span class="attr">name</span>: <span class="string">'John'</span>, <span class="attr">time</span>: <span class="string">'2pm'</span> &#125;, <span class="function"><span class="keyword">function</span> (<span class="params">data</span>) </span>&#123;</div><div class="line">	alert(<span class="string">'Data Loaded: '</span> + data);</div><div class="line">&#125;);</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="核心及其他"><a href="#核心及其他" class="headerlink" title="核心及其他"></a>核心及其他</h2><h4 id="jQuery对象"><a href="#jQuery对象" class="headerlink" title="jQuery对象"></a>jQuery对象</h4><ul>
+<li><code>jQuery()</code><ul>
+<li>等价于 <code>$()</code></li>
+<li><code>$(selector [, context])</code> 通过提供的选择器检索 DOM 元素并返回 jQuery 对象</li>
+<li><code>$(this)</code> 可调用 <code>this</code> 指向元素的 jQuery 方法</li>
+<li><code>$(&#39;span&#39;, this)</code> 等价于 <code>$(this).find(&#39;span&#39;)</code>， 用来为检索元素做限制范围</li>
+<li><code>$(原生DOM)</code> 将原生 DOM 转换成 jQuery 对象</li>
+<li><code>$(&#39;HTML&#39;)</code> 将 HTML 转换成 DOM 元素</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>如 jQuery 对象为空，则 <code>.length</code> 属性为 <code>0</code>，可用于检测 jQuery 对象是否为空</p>
+<p>当 HTML 为没有属性的简单标签,一般调用原生 <code>.createElement()</code>，其他情况用 <code>.innerHTML</code> 机制，在此过程中，浏览器可能过滤掉某些元素如 <code>&lt;html&gt;</code> 等。此外 <code>jQuery()</code> 要求 HTML 字符串是以 <code>&lt;</code> 开头的字符串（即文本节点不能出现在HTML字符串前面）</p>
+</blockquote>
+<ul>
+<li><p><code>jQuery.noConflict([removeAll])</code>  判断是否从全局作用域中内去除所有 jQuery 变量（包括 jQuery 本身）</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">jQuery.noConflict();</div><div class="line">(<span class="function"><span class="keyword">function</span> (<span class="params">$</span>) </span>&#123;</div><div class="line">    $(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</div><div class="line">        <span class="comment">// 继续使用 $ 代表 jQuery</span></div><div class="line">    &#125;);</div><div class="line">&#125;)(jQuery);</div><div class="line"><span class="comment">// 其它库可以使用 $</span></div></pre></td></tr></table></figure>
+</li>
+<li><p><code>jQuery.when(deferreds)</code> 执行一个或多个对象的回调函数，<code>Deferred</code>（延迟）对象通常表示异步事件</p>
+</li>
+</ul>
+<h4 id="实用工具"><a href="#实用工具" class="headerlink" title="实用工具"></a>实用工具</h4><ul>
+<li><code>$.each()</code> 遍历一个数组或对象（原生或 jQuery）</li>
+<li><code>$.inArray()</code>  返回一个值在数组中的索引位置。如果该值不在数组中，则返回 <code>-1</code>（类似原生 <code>.indexOf()</code> ，使用严格比较 <code>===</code>）</li>
+<li><code>$.trim()</code> 去除字符串两端的空格</li>
+<li><code>$.map(array, callback)</code> 将一个数组中的所有元素转换到另一个数组中并返回（结果和原数组长度不一定相同）</li>
+<li><code>$.grep()</code> 返回数组中符合筛选的项，不影响原数组</li>
+<li><code>$.makeArray()</code> 将类似数组的对象转化为普通数组</li>
+<li><code>$.type()</code> 判断对象的类别（函数、日期、数组、正则等）</li>
+<li><code>$.isFunction()</code> 判断是否为函数</li>
+<li><code>$.isArray()</code> 判断是否为数组</li>
+<li><code>$.isNumeric()</code> 判断是否为数字</li>
+<li><code>$.isWindow(obj)</code> 判断是否为 window 对象（一般用来确认是否为浏览器窗口操作）,</li>
+<li><code>$.isXMLDoc(node)</code> 判断是否为 XML 节点</li>
+<li><code>$.isEmptyObject()</code> 判断某个对象是否为空（不含包括原型内的任何属性/方法）， 而 <code>$.isPlainObject()</code> 判断某个参数是否为用 <code>{}</code> 或 <code>new Object()</code> 建立的对象</li>
+<li><p><code>$.extend()</code> 将多个对象，合并到第一个对象， <code>$.merge()</code> 合并两个数组内容到第一个数组（这两个方法均会改变第一个对象/数组）</p>
+<blockquote>
+<p><code>var newArray = $.merge([], oldArray);</code> // 用作拷贝方法</p>
+</blockquote>
+</li>
+<li><p><code>$.contains(container, contained)</code> 检查弟二个 DOM 元素是否为弟一个 DOM 元素（原生 DOM）的后代</p>
+</li>
+<li><code>$.noop()</code> 返回一个空函数</li>
+<li><code>$.now()</code> 相当于 <code>new Date().getTime()</code></li>
+<li><code>$.parseJSON(&#39;JSON&#39;)</code> 解析严格的JSON返回JS对象， <code>$.parseXML(&#39;XML&#39;)</code> 解析XML， <code>$.parseHTML(&#39;HTML&#39;)</code> 将字符串解析到一个 DOM 节点的数组</li>
+</ul>
+<h4 id="DOM元素方法及内部构件"><a href="#DOM元素方法及内部构件" class="headerlink" title="DOM元素方法及内部构件"></a>DOM元素方法及内部构件</h4><ul>
+<li><code>.get([index])</code> 检索匹配 jQuery 对象得到对应的 DOM 元素， 指定了 <code>index</code> 参数则会获取单个元素（类似<code>$(&#39;selector&#39;)[index]</code>，但可以指定负值）</li>
+<li><code>.index()</code> 与 <code>.get()</code> 正好相反, 接受节点返回其索引值</li>
+<li><code>.toArray()</code> 返回一个包含 jQuery 对象集合中的所有 DOM 元素的标准数组。</li>
+<li><code>$.fn.jquery</code> 返回当前使用 jQuery 的版本</li>
+<li><code>.length</code>与 <code>.size()</code> 均为返回 jQuery 对象中元素的数量</li>
+</ul>
+<h2 id="回调对象"><a href="#回调对象" class="headerlink" title="回调对象"></a>回调对象</h2><blockquote>
+<p><code>jQuery.Callbacks()</code> 函数返回一个全能的对象，此对象对管理回调列表提供了强大的方式。它能够增加、删除、触发、禁用回调函数</p>
+<p>回调对象类似于保存了一个回调函数列表，使用 <code>fire</code> 方法时，将会按列表顺序分别传入参数调用这些函数</p>
+</blockquote>
+<ul>
+<li><p>回调对象的方法，这些方法均返回绑定它的那个回调对象 <code>this</code> 以实现链式调用</p>
+<ul>
+<li><code>callbacks.add( callbacks )</code> 用来向回调列表中添加一个回调或回调的集合</li>
+<li><code>callbacks.remove( callbacks )</code> 从回调列表中删除一个回调或回调集合</li>
+<li><code>callbacks.fire( arguments )</code> 传入指定的参数调用所有的回调</li>
+<li><code>callbacks.disable()</code> 禁用回调列表中的回调</li>
+</ul>
+</li>
+<li><p><code>$.Callbacks( flags )</code> flags 的参数代如下（参数可同时传入多个，类似同时满足 <code>&amp;&amp;</code>）</p>
+<ul>
+<li><code>&#39;once&#39;</code> 只能执行一次 <code>fire()</code></li>
+<li><code>&#39;memory&#39;</code> 保存前面 <code>fire</code> 传入的参数，后面加入的新回调会被自动传入前面保存的参数并执行</li>
+<li><code>&#39;unique&#39;</code> 一次只能添加一个回调，回调列表不出现重复回调</li>
+<li><code>&#39;stopOnFalse&#39;</code> 当一个回调返回 <code>false</code> 时中断调用</li>
+</ul>
+</li>
+<li><p>回调对象的最典型应用是快速实现一个 观察者模式（又叫订阅/发布）</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 定义一个保存自定义事件的列表</span></div><div class="line"><span class="keyword">var</span> taskList = &#123;&#125;</div><div class="line"></div><div class="line">jQuery.Task = <span class="function"><span class="keyword">function</span> (<span class="params">id</span>) </span>&#123;</div><div class="line">  <span class="keyword">var</span> task = id &amp;&amp; taskList[id] <span class="comment">// 取出对应任务</span></div><div class="line">  <span class="keyword">if</span> (!task) &#123; <span class="comment">// 若任务不存在，则创建</span></div><div class="line">    callbacks = jQuery.Callbacks()</div><div class="line">    task = &#123;</div><div class="line">      <span class="attr">publish</span>: callbacks.fire,</div><div class="line">      <span class="attr">subscribe</span>: callbacks.add,</div><div class="line">      <span class="attr">unsubscribe</span>: callbacks.remove</div><div class="line">    &#125;;</div><div class="line">    <span class="comment">// 将任务加到事件列表</span></div><div class="line">    <span class="keyword">if</span> (id) &#123;</div><div class="line">      taskList[id] = task</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">  <span class="comment">// 返回取得或创建的 task</span></div><div class="line">  <span class="keyword">return</span> task</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="延迟对象"><a href="#延迟对象" class="headerlink" title="延迟对象"></a>延迟对象</h2><blockquote>
+<p>关于延迟对象的具体用法，请参考 <code>阮一峰</code> 的 <a href="http://www.ruanyifeng.com/blog/2011/08/a_detailed_explanation_of_jquery_deferred_object.html" target="_blank" rel="external">jQuery 的 deferred 对象详解</a></p>
+<p>理解 jQuery 的延迟对象，可以从理解 <strong>Promise</strong> 开始，本质上是对 Promise 的封装实现</p>
+<p>延迟对象是 jQuery 很多方法实现的基础，如 <strong>AJAX</strong>，对异步编程提供了统一风格的 API</p>
+<p>如果一个方法的执行依赖于多个请求结果，那么使用延迟对象（Promise）将大大松散代码结构耦合并提高可读性</p>
+</blockquote>
+<ul>
+<li><p>采用链式写法，因此可以方便地为一个操作添加多个执行回调，按添加顺序执行</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$.ajax(<span class="string">"test.html"</span>)</div><div class="line">  .done(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;alert(<span class="string">"哈哈，成功了！"</span>)&#125; )</div><div class="line">  .fail(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;alert(<span class="string">"出错啦！"</span>)&#125; )</div><div class="line">  .done(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;alert(<span class="string">"第二个回调函数！"</span>)&#125; )</div></pre></td></tr></table></figure>
+</li>
+<li><p><code>$.when()</code> 方法可以为同一个方法添加多个回调（类似 <code>Promise.all()</code>），它只接受 <strong>Deferred</strong> 对象作为参数</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 下面两个 ajax 都成功了才会调用 done，只要有一个失败了就调用 fail</span></div><div class="line">$.when($.ajax(<span class="string">"test1.html"</span>), $.ajax(<span class="string">"test2.html"</span>))</div><div class="line">　.done(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123; alert(<span class="string">"哈哈，成功了！"</span>)&#125;)</div><div class="line">　.fail(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123; alert(<span class="string">"出错啦！"</span>)&#125;)</div></pre></td></tr></table></figure>
+</li>
+<li><p>封装普通函数使其成为 Deferred 对象可以用 <code>deferred.resolve()</code> 和 <code>deferred.reject()</code></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> wait = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</div><div class="line">  <span class="comment">// 新建一个deferred对象，作为私有变量</span></div><div class="line">  <span class="keyword">var</span> dtd = $.Deferred() <span class="comment">// 这里也可以放在外面，而非闭包方式，但这有可能被外部使用 dtd.resolve() 等触发状态改变</span></div><div class="line"></div><div class="line">  <span class="comment">// 封装一个耗时的请求</span></div><div class="line">  $.get(<span class="string">'/someurl'</span>, <span class="function"><span class="keyword">function</span> (<span class="params">res</span>) </span>&#123;</div><div class="line">    <span class="keyword">if</span> (res.code === <span class="number">200</span>) &#123;</div><div class="line">      dtd.resolve() <span class="comment">// 请求成功</span></div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">      dtd.reject() <span class="comment">// 请求失败</span></div><div class="line">    &#125;</div><div class="line">  &#125;)</div><div class="line">  <span class="keyword">return</span> dtd <span class="comment">// 返回闭包</span></div><div class="line">  <span class="comment">// 也可以使用 return dtd.Primose()，这样返回一个新的 Deferred 对象 不能被外部的方法触发改变原来的 dtd</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// 现在 wait() 函数生成一个 Deferred 对象了，可以作为 $.when() 的参数啦</span></div><div class="line">$.when(wait())</div><div class="line">  .done(<span class="function"><span class="keyword">function</span> (<span class="params"></span>)</span>&#123;alert(<span class="string">"哈哈，请求成功了！"</span>)&#125;)</div><div class="line">  .fail(<span class="function"><span class="keyword">function</span> (<span class="params"></span>)</span>&#123;alert(<span class="string">"请求错啦！"</span>)&#125;)</div></pre></td></tr></table></figure>
+</li>
+<li><p><code>deferred.promise()</code> 会包装生成一个对象为 Deferred 对象，使其拥有 Deferred 接口</p>
+</li>
+<li><p>以下是几种 API 的汇总用法</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">$.when(wait())</div><div class="line">  .then(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;alert(<span class="string">"成功时看到我"</span>)&#125;, <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;alert(<span class="string">"失败时看到我"</span>)&#125;)</div><div class="line">　.done(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;alert(<span class="string">"成功时看到我"</span>)&#125;)</div><div class="line">  <span class="comment">// 以下三种失败方法等同，推荐用 .catch，与 ES6 一致</span></div><div class="line">  .then(<span class="literal">null</span>, <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;alert(<span class="string">"失败时看到我"</span>)&#125;)</div><div class="line">　.fail(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;alert(<span class="string">"失败时看到我"</span>)&#125;)</div><div class="line">  .catch(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;alert(<span class="string">"失败时看到我"</span>)&#125;)</div><div class="line"></div><div class="line">  .always(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;alert(<span class="string">"成功或失败都看到我"</span>)&#125;)</div></pre></td></tr></table></figure>
+</li>
+<li><p><code>deferred.state()</code> 用来判断当前的 Promise 状态，返回下列三种字符串</p>
+<ul>
+<li>‘pending’ 尚未完成</li>
+<li>‘resolved’ 被解决</li>
+<li>‘rejected’ 被拒绝</li>
+</ul>
+</li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><blockquote>
+<p>最后总结一下，jQuery 虽然简单易学，但毕竟是一门基于 JavaScript 的库，本质上还是要理解这个语言的核心。实际开发中，个人也进行了不少的思考，毕竟需要兼容低版本浏览器是不二之选。</p>
+<p>但也有个血泪的教训就是，很多时候太依赖 jQuery 了，导致经常需要查找手册才知道原生的方法实现（毕竟哲学是 write less，do more）</p>
+</blockquote>
+<ul>
+<li>相关书籍推荐<ul>
+<li><a href="https://item.jd.com/11019625.html" target="_blank" rel="external">《锋利的jQuery》</a>，精品国产书，毫无上手难度的一本书，对新手而言极为推荐，有很多精心设计的demo。</li>
+<li><a href="https://item.jd.com/11336695.html" target="_blank" rel="external">jQuery基础教程（第4版）</a>，图灵出版的精品，虽然是基础教程，但后半部分讲解的内容，很多是需要一定的实战积累才能理解其巧妙，建议作为进阶书籍。</li>
+</ul>
+</li>
+</ul>
+</div></article></div></main><footer><div class="paginator"><a href="/2015/12/08/《JavaScript高级程序设计》阅读笔记（上）/" class="prev">PREV</a><a href="/2015/11/07/jQuery-API学习小扎（上）/" class="next">NEXT</a></div><div class="copyright"><p>© 2015 - 2017 <a href="https://github.com/Hyifu">Hyifu</a>, powered by <a href="https://hexo.io/" target="_blank">Hexo</a></p></div></footer></div><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" integrity="sha384-crwIf/BuaWM9rM65iM+dWFldgQ1Un8jWZMuh3puxb8TOY9+linwLoI7ZHZT+aekW" crossorigin="anonymous"></script></body></html>

